@@ -1,0 +1,8 @@
+com/atlastic/ocuray/image/filter/NoiseFilter.class
+com/atlastic/ocuray/image/tool/FileHelper.class
+com/atlastic/ocuray/image/filter/AbstractFilter.class
+com/atlastic/ocuray/Main.class
+com/atlastic/ocuray/Calculator.class
+com/atlastic/ocuray/image/filter/ContrastFilter.class
+com/atlastic/ocuray/image/tool/ImageHelper.class
+com/atlastic/ocuray/Calculator$IntegerMath.class

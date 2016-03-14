@@ -1,7 +1,10 @@
 package com.atlastic.ocuray.image.tool;
 
+import com.atlastic.ocuray.image.analysis.ShapeUtils;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.util.List;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
@@ -33,15 +36,29 @@ public class FileHelper {
     }
 
     public static void writePixelsToImage(final short[][] pixels, final String path) throws IOException {
-        BufferedImage res = new BufferedImage(pixels.length, pixels[0].length, BufferedImage.TYPE_BYTE_GRAY);
+        BufferedImage res = new BufferedImage(pixels[0].length, pixels.length, BufferedImage.TYPE_BYTE_GRAY);
         Color c;
         File output = new File(path);
         for (int i = 0; i < pixels.length; i++) {
             for (int j = 0; j < pixels[i].length; j++) {
                 c = new Color(pixels[i][j], pixels[i][j], pixels[i][j]);
-                res.setRGB(i, j, c.getRGB());
+                res.setRGB(j, i, c.getRGB());
+
             }
         }
+        ImageIO.write(res, "png", output);
+    }
+
+    public static void writeShapesToImage(final int width, final int height, final String path,
+                                          final List<List<Point>> shapes, final short[][] pixels) throws IOException {
+        BufferedImage res = new BufferedImage(height, width, BufferedImage.TYPE_BYTE_GRAY);
+        File output = new File(path);
+        shapes.forEach(shape ->
+            shape.forEach(point -> {
+                    final Color c = new Color(255, 255, 255);
+                    res.setRGB(point.y, point.x, c.getRGB());
+            })
+        );
         ImageIO.write(res, "png", output);
     }
 }

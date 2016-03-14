@@ -13,6 +13,7 @@ import java.nio.Buffer;
    Helper class for Image manipulation
  */
 public class ImageHelper {
+    public static short brightness = 80;
     public static BufferedImage loadImageFromPath(final String path) {
         BufferedImage img = null;
         try {
@@ -87,6 +88,11 @@ public class ImageHelper {
         return result;
     }
 
+    public static int adjustedColor(final int color) {
+        int adjusted = color + brightness;
+        return (adjusted > 255 ? 255 : adjusted);
+    }
+
     public static short[][] convertTo2DAndGrayscaleUsingRGB(final BufferedImage image) throws IOException {
         if (image == null || image.getWidth() <= 0 || image.getHeight() <= 0) {
             throw new IOException("Image is null or has no content in it");
@@ -96,14 +102,20 @@ public class ImageHelper {
         int height = image.getHeight();
         short[][] res = new short[height][width];
         int count = 0;
-
-        for(int i = 0; i < height; i++){
-            for(int j = 0; j < width; j++){
+        //System.out.println("width: " + width);
+        //System.out.println("height: " + height);
+        for (int i = 0; i < height; i++){
+            for (int j = 0; j < width; j++){
                 count++;
-                Color c = new Color(image.getRGB(i, j));
-                //System.out.println("S.No: " + count + " Red: " + c.getRed() +"  Green: " + c.getGreen() + " Blue: " + c.getBlue());
-                res[i][j] = (short) ((c.getRed() + c.getGreen() +  c.getBlue()) / 3);
-                System.out.println("Grayscale : " + res[i][j]);
+                Color c = new Color(image.getRGB(j, i));
+                //System.out.println("i ["+i+"], j ["+j+"], color : "+((c.getRed() + c.getGreen() +  c.getBlue()) / 3));
+                // luminosity algorithm : 0.21 R + 0.72 G + 0.07 B.
+                res[i][j] = (short)Math.round(0.21 * adjustedColor(c.getRed()) + 0.72 * adjustedColor(c.getGreen())
+                        + 0.07 * adjustedColor(c.getBlue()));
+                // average method : (r + g + b) / 3
+                //res[i][j] = (short) ((c.getRed() + c.getGreen() +  c.getBlue()) / 3);
+                // lightness (max(R, G, B) + min(R, G, B)) / 2
+                //res[i][j] = (max(c.getRed(), c.getBlue(), c.getGreen()) + min(c.getRed(), c.getBlue(), c.getGreen())) / 2
             }
         }
         return res;

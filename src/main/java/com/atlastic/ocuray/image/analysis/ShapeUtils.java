@@ -1,7 +1,10 @@
 package com.atlastic.ocuray.image.analysis;
 
+import com.atlastic.ocuray.Constants;
+import com.atlastic.ocuray.utils.LogUtils;
+
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,6 +55,18 @@ public class ShapeUtils {
             coord = computeCoordinatesForDirection(x, y, pixels.length, pixels[0].length, i);
             if (coord.x != -1 && coord.y != -1 && pixels[coord.x][coord.y] != 255
                     && pixelsProcessed[coord.x][coord.y] != 1) {
+                res.add(coord);
+            }
+        }
+        return res;
+    }
+
+    public static List<Point> getPixelNeighboursForOutline(final int x, final int y, final short[][] pixels) {
+        List<java.awt.Point> res = new ArrayList<>();
+        java.awt.Point coord;
+        for (byte i = 1; i <= 8; i++) {
+            coord = computeCoordinatesForDirection(x, y, pixels.length, pixels[0].length, i);
+            if (coord.x != -1 && coord.y != -1 && pixels[coord.x][coord.y] != 255) {
                 res.add(coord);
             }
         }
@@ -128,5 +143,32 @@ public class ShapeUtils {
             return true;
         }
         return false;
+    }
+
+    public static ShapeVector[] vectorizeShape(final ShapeSide[] sides) {
+        if (sides == null || sides.length <= 0) {
+            return null;
+        }
+        ShapeVector[] res = new ShapeVector[4];
+        int i = 0;
+        int j;
+        double sideLength = 0;
+        double value;
+        List<ShapeSideElement> sideElts;
+        for (ShapeSide side : sides) {
+            sideElts = side.getSideElts();
+            res[i] = new ShapeVector(sideElts.size());
+            sideLength = side.getLength();
+            //System.out.println("Side Length : "+sideLength);
+            j = 0;
+            for (ShapeSideElement sideElt : sideElts) {
+                value = sideElt.getLength() / sideLength;
+                //System.out.println("Elt length: "+sideElt.getLength());
+                //@System.out.println("Value: "+value);
+                res[i].setAt(j++, (sideElt.isFilled() ? value : 0 - value));
+            }
+            i++;
+        }
+        return res;
     }
 }

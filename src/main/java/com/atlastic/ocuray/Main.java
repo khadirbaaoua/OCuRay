@@ -1,7 +1,6 @@
 package com.atlastic.ocuray;
 
-import com.atlastic.ocuray.image.analysis.ShapeReader;
-import com.atlastic.ocuray.image.analysis.ShapeUtils;
+import com.atlastic.ocuray.image.analysis.*;
 import com.atlastic.ocuray.image.filter.ContrastFilter;
 import com.atlastic.ocuray.image.filter.NoiseFilter;
 import com.atlastic.ocuray.image.tool.FileHelper;
@@ -29,12 +28,6 @@ public class Main {
         NoiseFilter.doFilter(pixels);
         FileHelper.writePixelsToImage(pixels, "grayscale-contrasted-noiseless.png");
         System.out.println("Image filtering done, reading shapes");
-        /*for (int i = 0; i < pixels.length; i++) {
-            for (int j = 0; j < pixels[0].length; j++) {
-                System.out.print(pixels[i][j] == 255 ? "-" : "*");
-            }
-            System.out.println("   ");
-        }*/
         List<List<Point>> shapes = ShapeReader.readShapes(pixels);
         System.out.println("Shape reading done, "+shapes.size()+" shapes red");
         FileHelper.writeShapesToImage(pixels.length, pixels[0].length, args[0] + "-shapes.png", shapes, pixels);
@@ -43,6 +36,16 @@ public class Main {
         System.out.println("Shapes successfully converted to outline, writing to file");
         FileHelper.writeShapesToImage(pixels.length, pixels[0].length, args[0] + "-shapes-outline.png", shapesOutline,
                 pixels);
+        try {
+            System.out.println("Loading DB ref");
+            ShapeComparator.loadDbRef();
+        } catch (IOException ioe) {
+
+        }
+        System.out.println("Analyzing shape outline");
+        List<ShapeModel> letters = ShapeAnalysis.analyzeShapes(shapes);
+        System.out.println("Analyzing letters and extracting words");
+        List<Line> lines = ShapeSemantics.getSemanticsOutOfShapes(letters);
         System.out.println("MAIN Over");
     }
 }

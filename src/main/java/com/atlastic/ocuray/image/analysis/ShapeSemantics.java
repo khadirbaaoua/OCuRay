@@ -72,22 +72,34 @@ public class ShapeSemantics {
         line.setWords(words);
     }
 
+
+
+    // utility to merge shapes that share the same space but are not linked
+    // i.e.  : ; % ! ? = ¨ "
+    public static void regroupSplittedShapes(List<Line> lines) {
+        for (Line line : lines) {
+            // mandatory : specific match set to qualify the shape
+            // with additionnal marker
+        }
+    }
+
+
     // wrapper to regroup all letters for all lines
     public static void regroupAllLetters(List<Line> lines) {
         double spacing;
         for (Line line : lines) {
-            spacing = getMinimumSpacingForLine(line);
+            spacing = getMaximumSpacingForLine(line);
             regroupLettersByWords(line, spacing);
         }
     }
 
-    // calculate the minimum spacing between letters
-    public static double getMinimumSpacingForLine(final Line line) {
+    // calculate the maximum spacing between letters
+    public static double getMaximumSpacingForLine(final Line line) {
         double res = -1, tmp;
         List<ShapeModel> letters = line.getLetters();
         for (int i = 0; i < letters.size() - 2; i++) {
             tmp = getSpacingBetweenLetters(letters.get(i), letters.get(i + 1));
-            res = ((res == -1 || tmp < res) ? tmp : res);
+            res = ((res == -1 || tmp > res) ? tmp : res);
         }
         return res;
     }

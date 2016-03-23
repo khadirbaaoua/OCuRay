@@ -5,4 +5,6 @@ package com.atlastic.ocuray;
  */
 public class Constants {
     public static final String PATH_DB = "src/main/resources/db/db.ref.test";
+
+    public static final String TTC_PATTERN = "TTC";
 }

@@ -11,6 +11,7 @@ public class Line {
     private int height;
     private List<ShapeModel> letters = new ArrayList<>();
     private List<Word> words = new ArrayList<>();
+    private List<String> wordsStr = null;
 
     public Line(final int minx, final int height) {
         this.minx = minx;
@@ -54,10 +55,31 @@ public class Line {
     }
 
     public List<String> toStr() {
+        if (this.wordsStr != null) {
+            return this.wordsStr;
+        }
         List<String> res = new ArrayList<>();
         for (Word word : words) {
             res.add(word.toStr());
         }
+        this.wordsStr = res;
         return res;
+    }
+
+    public int contains(final String pattern) {
+        if (pattern == null || pattern.equals("")) {
+            return -1;
+        }
+        if (this.wordsStr == null) {
+            this.toStr();
+        }
+        int i = 0;
+        for (String str : wordsStr) {
+            if (pattern.equalsIgnoreCase(str)) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
     }
 }

@@ -73,14 +73,73 @@ public class ShapeSemantics {
     }
 
 
+    // group compounds by char (compounds are already ordered in the ref db file
+    public static List<List<DbRef>> groupCompounds(final List<DbRef> compounds) {
+        List<List<DbRef>> res = new ArrayList<>();
+        List<DbRef> currentCompound = null;
+        char currentC = 't';
+        for (DbRef dbRef : compounds) {
+            if (currentC != dbRef.getC()) {
+                if (currentCompound != null) {
+                    res.add(currentCompound);
+                }
+                currentCompound = new ArrayList<>();
+            } else {
+                currentCompound.add(dbRef);
+            }
+        }
+        return res;
+    }
+
+    // extract compound char ref from db
+    public static List<DbRef> getRefCompounds(final List<DbRef> dbRefs) {
+        List<DbRef> res = new ArrayList<>();
+        for (DbRef dbRef : dbRefs) {
+            if (dbRef.isMultipartRef()) {
+                res.add(dbRef);
+            }
+        }
+        return res;
+    }
+
+    // return yes if the character could be part of a compound in the ref db
+    public static boolean isKeyTocompoundCharacter(final char c, final List<DbRef> dbRefs) {
+        for (DbRef dbRef : dbRefs) {
+            if (!dbRef.isMultipartRef() && c == dbRef.getC()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // compute distance between each found compounds and return true if each character are within
+    // the distance of the size of an A
+    public static boolean isCompoundInTheSameAre(final List<ShapeModel> letters) {
+
+        return false;
+    }
+
+    // try to match a compound from the with the line
+    public static boolean matchCompoundWithLine(final List<DbRef> compound, final Line line) {
+        List<ShapeModel> letters = line.getLetters();
+        List<ShapeModel> compoundMatch = null;
+        int nbLettersMatched = 0;
+        for (ShapeModel letter : letters) {
+
+        }
+        if (nbLettersMatched == compound.size()) {
+            return isCompoundInTheSameAre(compoundMatch);
+        }
+        return false;
+    }
 
     // utility to merge shapes that share the same space but are not linked
     // i.e.  : ; % ! ? = ¨ "
-    public static void regroupSplittedShapes(List<Line> lines) {
-        for (Line line : lines) {
-            // mandatory : specific match set to qualify the shape
-            // with additionnal marker
-        }
+    public static void regroupSplittedShapes(Line line) {
+        // in the line, we try to see if there any characters that match compounds in the ref db
+        // if so, we try to see if any set of matched characters are in the line and in the same
+        // vicinity
+
     }
 
 

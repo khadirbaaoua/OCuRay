@@ -11,6 +11,7 @@ import java.util.List;
 public class ShapeModel {
     private int size;
     private double ratio;
+    private double relativeSize;
     private int minx;
     private int miny;
     private int maxx;
@@ -133,5 +134,13 @@ public class ShapeModel {
 
     public void setC(char c) {
         this.c = c;
+    }
+
+    public double getRelativeSize() {
+        return relativeSize;
+    }
+
+    public void setRelativeSize(double relativeSize) {
+        this.relativeSize = relativeSize;
     }
 }

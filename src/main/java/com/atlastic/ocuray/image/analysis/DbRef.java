@@ -9,11 +9,21 @@ public class DbRef {
     private char c;
     private double ratio;
     private ShapeVector[] sides;
+    private DbRef ref = null;
+    private int counter;
+    private int total;
 
     public DbRef(final char c, final double ratio, ShapeVector[] sides) {
         this.c = c;
         this.ratio = ratio;
         this.sides = sides;
+    }
+
+    public DbRef(char c, DbRef ref, final int counter, final int total) {
+        this.c = c;
+        this.ref = ref;
+        this.counter = counter;
+        this.total = total;
     }
 
     public char getC() {
@@ -38,5 +48,21 @@ public class DbRef {
 
     public void setSides(ShapeVector[] sides) {
         this.sides = sides;
+    }
+
+    public boolean isMultipartRef() {
+        return ref != null;
+    }
+
+    public DbRef getRef() {
+        return ref;
+    }
+
+    public int getCounter() {
+        return counter;
+    }
+
+    public int getTotal() {
+        return total;
     }
 }

@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class Word {
     private List<ShapeModel> letters;
+    private boolean isCompound = false;
 
     public Word(final ShapeModel ... args) {
         letters = new ArrayList<>();
@@ -30,5 +31,9 @@ public class Word {
             str.append(letter.getC());
         }
         return str.toString();
+    }
+
+    public void markAsCompound() {
+        this.isCompound = true;
     }
 }

@@ -53,6 +53,9 @@ public class ShapeComparator {
             throw new RuntimeException("Ref db is not initialized, size="+dbReferences.size());
         }
         for (DbRef dbRef : dbReferences) {
+            if (dbRef.isMultipartRef()) {
+                continue;
+            }
             //System.out.println("Comparing to ref ["+dbRef.getC()+"]");
             tmp = getSimilarityBetweenSides(v1, dbRef.getSides());
             //System.out.println("Result : "+tmp);
@@ -65,6 +68,15 @@ public class ShapeComparator {
         return c;
     }
 
+    // get db ref with corresponding char
+    public static DbRef getDbRefFromChar(final char c) {
+        for (DbRef dbRef : dbReferences) {
+            if (dbRef.getC() == c) {
+                return dbRef;
+            }
+        }
+        return null;
+    }
 
     // load ref db
     public static void loadDbRef() throws IOException {
@@ -80,13 +92,23 @@ public class ShapeComparator {
             for (String line : lines) {
                 String[] lineData = line.split(" ");
                 c = lineData[0].charAt(0);
-                curRef = new ShapeVector[4];
-                curRef[0] = new ShapeVector(lineData[1]);
-                curRef[1] = new ShapeVector(lineData[2]);
-                curRef[2] = new ShapeVector(lineData[3]);
-                curRef[3] = new ShapeVector(lineData[5]);
-                ratio = Double.parseDouble(lineData[5]);
-                dbReferences.add(new DbRef(c, ratio, curRef));
+                if (lineData.length == 4) {
+                    DbRef ref = getDbRefFromChar(c);
+                    if (ref != null) {
+                        dbReferences.add(new DbRef(c, ref, Integer.parseInt(lineData[2]),
+                                Integer.parseInt(lineData[2])));
+                    } else {
+                        throw new IOException("Missing ref in reference file or order is wrong ?");
+                    }
+                } else if(lineData.length == 7) {
+                    curRef = new ShapeVector[4];
+                    curRef[0] = new ShapeVector(lineData[1]);
+                    curRef[1] = new ShapeVector(lineData[2]);
+                    curRef[2] = new ShapeVector(lineData[3]);
+                    curRef[3] = new ShapeVector(lineData[5]);
+                    ratio = Double.parseDouble(lineData[5]);
+                    dbReferences.add(new DbRef(c, ratio, curRef));
+                }
             }
         } else {
             System.out.println("The db file does not exists");

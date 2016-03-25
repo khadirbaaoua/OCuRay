@@ -119,16 +119,27 @@ public class ShapeSemantics {
         return false;
     }
 
-    // try to match a compound from the with the line
-    public static boolean matchCompoundWithLine(final List<DbRef> compound, final Line line) {
+    // try to match a compound with a list of letter (n->n matching)
+    public static void matchSingleCompoundWithLine(final List<DbRef> compound, final List<ShapeModel> letters) {
+        
+        for (ShapeModel letter : letters) {
+            for (DbRef compoundLetter : compound) {
+                if (letter.getC() == compoundLetter.getC()) {
+
+                }
+            }
+        }
+    }
+
+    // try to match a any of the compound within the line
+    public static boolean matchCompounsdWithLine(final List<List<DbRef>> compounds, final Line line) {
         List<ShapeModel> letters = line.getLetters();
         List<ShapeModel> compoundMatch = null;
-        int nbLettersMatched = 0;
-        for (ShapeModel letter : letters) {
+        boolean isMatch;
+        for (List<DbRef> compound : compounds) {
+            for (ShapeModel letter : letters) {
 
-        }
-        if (nbLettersMatched == compound.size()) {
-            return isCompoundInTheSameAre(compoundMatch);
+            }
         }
         return false;
     }

@@ -114,21 +114,27 @@ public class ShapeSemantics {
 
     // compute distance between each found compounds and return true if each character are within
     // the distance of the size of an A
-    public static boolean isCompoundInTheSameAre(final List<ShapeModel> letters) {
+    public static boolean isCompoundInTheSameArea(final List<ShapeModel> letters) {
 
         return false;
     }
 
     // try to match a compound with a list of letter (n->n matching)
-    public static void matchSingleCompoundWithLine(final List<DbRef> compound, final List<ShapeModel> letters) {
-        
+    public static boolean matchSingleCompoundWithLine(final List<DbRef> compound, final List<ShapeModel> letters) {
+        int[] matchedLetters = new int[compound.size()];
         for (ShapeModel letter : letters) {
             for (DbRef compoundLetter : compound) {
-                if (letter.getC() == compoundLetter.getC()) {
-
+                if (letter.getC() == compoundLetter.getC() && matchedLetters[compoundLetter.getCounter()] != 1) {
+                    matchedLetters[compoundLetter.getCounter()] = 1;
                 }
             }
         }
+        for (int i : matchedLetters) {
+            if (i != 1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // try to match a any of the compound within the line
@@ -137,8 +143,8 @@ public class ShapeSemantics {
         List<ShapeModel> compoundMatch = null;
         boolean isMatch;
         for (List<DbRef> compound : compounds) {
-            for (ShapeModel letter : letters) {
-
+            if (matchSingleCompoundWithLine(compound, letters)) {
+                return true;
             }
         }
         return false;

@@ -120,21 +120,23 @@ public class ShapeSemantics {
     }
 
     // try to match a compound with a list of letter (n->n matching)
-    public static boolean matchSingleCompoundWithLine(final List<DbRef> compound, final List<ShapeModel> letters) {
+    public static List<ShapeModel> matchSingleCompoundWithLine(final List<DbRef> compound, final List<ShapeModel> letters) {
         int[] matchedLetters = new int[compound.size()];
+        List<ShapeModel> lettersMatched = new ArrayList<>();
         for (ShapeModel letter : letters) {
             for (DbRef compoundLetter : compound) {
                 if (letter.getC() == compoundLetter.getC() && matchedLetters[compoundLetter.getCounter()] != 1) {
                     matchedLetters[compoundLetter.getCounter()] = 1;
+                    lettersMatched.add(letter);
                 }
             }
         }
         for (int i : matchedLetters) {
             if (i != 1) {
-                return false;
+                return null;
             }
         }
-        return true;
+        return lettersMatched;
     }
 
     // try to match a any of the compound within the line
@@ -143,9 +145,8 @@ public class ShapeSemantics {
         List<ShapeModel> compoundMatch = null;
         boolean isMatch;
         for (List<DbRef> compound : compounds) {
-            if (matchSingleCompoundWithLine(compound, letters)) {
-                return true;
-            }
+            compoundMatch = matchSingleCompoundWithLine(compound, letters);
+
         }
         return false;
     }

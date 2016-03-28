@@ -22,6 +22,7 @@ public class ShapeModel {
     private Line line;
     private char c;
     ShapeSide[] sideInformation;
+    private boolean isHollow = false;
 
     public ShapeModel() {
         this.size = 0;
@@ -142,5 +143,13 @@ public class ShapeModel {
 
     public void setRelativeSize(double relativeSize) {
         this.relativeSize = relativeSize;
+    }
+
+    public boolean isHollow() {
+        return isHollow;
+    }
+
+    public void setIsHollow(boolean isHollow) {
+        this.isHollow = isHollow;
     }
 }

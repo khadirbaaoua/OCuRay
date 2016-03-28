@@ -18,7 +18,9 @@ public class Word {
     }
 
     public void addLetter(final ShapeModel letter) {
-        letters.add(letter);
+        if (!letter.isHollow()) {
+            letters.add(letter);
+        }
     }
 
     public void removeLetter(final ShapeModel letter) {

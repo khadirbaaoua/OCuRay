@@ -102,16 +102,6 @@ public class ShapeSemantics {
         return res;
     }
 
-    // return yes if the character could be part of a compound in the ref db
-    public static boolean isKeyTocompoundCharacter(final char c, final List<DbRef> dbRefs) {
-        for (DbRef dbRef : dbRefs) {
-            if (!dbRef.isMultipartRef() && c == dbRef.getC()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     // compute distance between each found compounds and return true if each character are within
     // the distance of the size of an A
     public static boolean isCompoundInTheSameArea(final List<ShapeModel> letters) {
@@ -120,12 +110,15 @@ public class ShapeSemantics {
     }
 
     // try to match a compound with a list of letter (n->n matching)
-    public static List<ShapeModel> matchSingleCompoundWithLine(final List<DbRef> compound, final List<ShapeModel> letters) {
+    public static List<ShapeModel> matchSingleCompoundWithLine(final List<DbRef> compound,
+                                                               final List<ShapeModel> letters,
+                                                               final List<ShapeModel> currentMatched) {
         int[] matchedLetters = new int[compound.size()];
         List<ShapeModel> lettersMatched = new ArrayList<>();
         for (ShapeModel letter : letters) {
             for (DbRef compoundLetter : compound) {
-                if (letter.getC() == compoundLetter.getC() && matchedLetters[compoundLetter.getCounter()] != 1) {
+                if (letter.getC() == compoundLetter.getC() && !currentMatched.contains(letter)
+                        && matchedLetters[compoundLetter.getCounter()] != 1) {
                     matchedLetters[compoundLetter.getCounter()] = 1;
                     lettersMatched.add(letter);
                 }
@@ -139,25 +132,47 @@ public class ShapeSemantics {
         return lettersMatched;
     }
 
+    // set first shape to char and set others as hollow
+    public static void updateShapesToChar(List<ShapeModel> shapes, final char c) {
+        for (int i = 0; i < shapes.size(); i++) {
+            if (i == 0) {
+                shapes.get(i).setC(c);
+            } else {
+                shapes.get(i).setIsHollow(true);
+            }
+        }
+    }
+
     // try to match a any of the compound within the line
-    public static boolean matchCompounsdWithLine(final List<List<DbRef>> compounds, final Line line) {
+    public static List<ShapeModel> matchCompounsdWithLine(final List<List<DbRef>> compounds, final Line line) {
         List<ShapeModel> letters = line.getLetters();
         List<ShapeModel> compoundMatch = null;
+        List<ShapeModel> matchedLetters = new ArrayList<>();
         boolean isMatch;
         for (List<DbRef> compound : compounds) {
-            compoundMatch = matchSingleCompoundWithLine(compound, letters);
+            compoundMatch = matchSingleCompoundWithLine(compound, letters, matchedLetters);
+            if (compoundMatch != null) {
+                matchedLetters.addAll(compoundMatch);
+                // merge shapes && update to matched char
+                // i.e. update the 1st shape to the char and
+                // set the other to hollow state
 
+            }
         }
-        return false;
+        return matchedLetters;
     }
 
     // utility to merge shapes that share the same space but are not linked
     // i.e.  : ; % ! ? = ¨ "
-    public static void regroupSplittedShapes(Line line) {
+    public static void regroupSplittedShapes(final Line line) {
         // in the line, we try to see if there any characters that match compounds in the ref db
         // if so, we try to see if any set of matched characters are in the line and in the same
         // vicinity
-
+        boolean res;
+        // try to match compounds until none can be matched
+        do {
+            res = matchCompounsdWithLine(groupCompounds(getRefCompounds(ShapeComparator.dbReferences)), line).size() > 0;
+        } while (res);
     }
 
 
@@ -185,6 +200,10 @@ public class ShapeSemantics {
     public static List<Line> getSemanticsOutOfShapes(final List<ShapeModel> shapes) {
         // regroup shapes by line
         List<Line> lines = regroupShapesByLine(shapes);
+        // try to match compounds for each line
+        for (Line line : lines) {
+            regroupSplittedShapes(line);
+        }
         // and then regroup the letters for each line
         regroupAllLetters(lines);
         return lines;

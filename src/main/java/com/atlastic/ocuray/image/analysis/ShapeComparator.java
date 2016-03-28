@@ -16,7 +16,7 @@ import java.util.Map;
  * Created by khadirbaaoua on 17/03/2016.
  */
 public class ShapeComparator {
-    static List<DbRef> dbReferences = new ArrayList();
+    public static List<DbRef> dbReferences = new ArrayList();
 
     // euclidian distance between two sides, the more it nears the 0, the nearer the shapes are
     public static double computeEuclidianDistance(final ShapeVector v1, final ShapeVector v2) {

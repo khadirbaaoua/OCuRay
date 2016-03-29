@@ -24,7 +24,7 @@ public class ShapeAnalysis {
      *
      * The shape (mostly letters), can be described as a list of used/unused range of
      * pixels for each side, which along the relativeSize (height, width) of the shape and
-     * the inner shapes, will be the signature of the shape
+     * the inner shapes, will be the unique signature of the shape
      * Most letters will have their own unique signature which then will allows us to
      * identify letters
     */
@@ -113,6 +113,7 @@ public class ShapeAnalysis {
         shapeModel.setMiny(miny);
         shapeModel.setMaxx(maxx);
         shapeModel.setMaxy(maxy);
+        shapeModel.setDiag(ShapeMaths.computeDistanceForPoints(new Point(minx, miny), new Point(maxx, maxy)));
         shapeModel.setRatio((maxy - miny) / (maxx - minx));
         shapeModel.setWidth(maxy - miny);
         shapeModel.setHeight(maxx - minx);
@@ -136,6 +137,8 @@ public class ShapeAnalysis {
         ShapeModel shapeModel;
         ShapeVector[] vecs;
         char c;
+        int nbShapes = 0;
+        double totalSizeDiag = 0.0;
         for (List<Point> shape : shapes) {
             // binarize the shape and its sides
             shapeModel = ShapeAnalysis.analyzeShape(shape);
@@ -145,6 +148,14 @@ public class ShapeAnalysis {
             c = ShapeComparator.compareShapeWithDb(vecs);
             // and set it to the binarized shape
             shapeModel.setC(c);
+            // calculate the relative size overall
+            totalSizeDiag += shapeModel.getDiag();
+            nbShapes++;
+            System.out.println("Got the character "+c);
+        }
+        if (nbShapes != 0) {
+            ShapeComparator.averageSize = totalSizeDiag / nbShapes;
+            System.out.println("Average diag size is "+ShapeComparator.averageSize);
         }
         return res;
     }

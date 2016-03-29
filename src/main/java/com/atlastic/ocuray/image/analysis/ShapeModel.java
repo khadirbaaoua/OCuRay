@@ -18,6 +18,7 @@ public class ShapeModel {
     private int maxy;
     private int height;
     private int width;
+    private double diag;
     private Point center;
     private Line line;
     private char c;
@@ -151,5 +152,13 @@ public class ShapeModel {
 
     public void setIsHollow(boolean isHollow) {
         this.isHollow = isHollow;
+    }
+
+    public double getDiag() {
+        return diag;
+    }
+
+    public void setDiag(double diag) {
+        this.diag = diag;
     }
 }

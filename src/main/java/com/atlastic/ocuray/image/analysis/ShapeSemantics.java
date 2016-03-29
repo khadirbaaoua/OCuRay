@@ -105,8 +105,25 @@ public class ShapeSemantics {
     // compute distance between each found compounds and return true if each character are within
     // the distance of the size of an A
     public static boolean isCompoundInTheSameArea(final List<ShapeModel> letters) {
-
-        return false;
+        if (letters == null || letters.size() == 0) {
+            return false;
+        }
+        if (letters.size() == 1) {
+            return true;
+        }
+        int start = 0;
+        double distance;
+        while (start < letters.size() - 1) {
+            for (int i = start; i < letters.size() - 1; i++) {
+                distance = ShapeMaths.computeDistanceForPoints(letters.get(i).getCenter(),
+                        letters.get(i + 1).getCenter());
+                if (distance > ShapeComparator.averageSize) {
+                    return false;
+                }
+            }
+            start++;
+        }
+        return true;
     }
 
     // try to match a compound with a list of letter (n->n matching)
@@ -129,7 +146,7 @@ public class ShapeSemantics {
                 return null;
             }
         }
-        return lettersMatched;
+        return isCompoundInTheSameArea(lettersMatched) ? lettersMatched : null;
     }
 
     // set first shape to char and set others as hollow
@@ -156,7 +173,7 @@ public class ShapeSemantics {
                 // merge shapes && update to matched char
                 // i.e. update the 1st shape to the char and
                 // set the other to hollow state
-
+                updateShapesToChar(compoundMatch, compound.get(0).getC());
             }
         }
         return matchedLetters;

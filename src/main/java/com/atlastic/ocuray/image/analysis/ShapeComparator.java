@@ -17,6 +17,7 @@ import java.util.Map;
  */
 public class ShapeComparator {
     public static List<DbRef> dbReferences = new ArrayList();
+    public static double averageSize = 0.0;
 
     // euclidian distance between two sides, the more it nears the 0, the nearer the shapes are
     public static double computeEuclidianDistance(final ShapeVector v1, final ShapeVector v2) {
@@ -90,6 +91,10 @@ public class ShapeComparator {
             char c;
             ShapeVector[] curRef;
             for (String line : lines) {
+                // ignore comments
+                if (line.startsWith("###")) {
+                    continue;
+                }
                 String[] lineData = line.split(" ");
                 c = lineData[0].charAt(0);
                 if (lineData.length == 4) {
@@ -114,4 +119,5 @@ public class ShapeComparator {
             System.out.println("The db file does not exists");
         }
     }
+
 }

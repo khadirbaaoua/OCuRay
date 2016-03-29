@@ -1,6 +1,8 @@
 package com.atlastic.ocuray.image.tool;
 
+import com.atlastic.ocuray.image.analysis.ShapeModel;
 import com.atlastic.ocuray.image.analysis.ShapeUtils;
+import com.atlastic.ocuray.image.analysis.ShapeVector;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -54,10 +56,10 @@ public class FileHelper {
         BufferedImage res = new BufferedImage(height, width, BufferedImage.TYPE_BYTE_GRAY);
         File output = new File(path);
         shapes.forEach(shape ->
-            shape.forEach(point -> {
-                    final Color c = new Color(255, 255, 255);
-                    res.setRGB(point.y, point.x, c.getRGB());
-            })
+                        shape.forEach(point -> {
+                            final Color c = new Color(255, 255, 255);
+                            res.setRGB(point.y, point.x, c.getRGB());
+                        })
         );
         ImageIO.write(res, "png", output);
     }

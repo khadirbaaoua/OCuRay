@@ -1,8 +1,5 @@
 package com.atlastic.ocuray.image.analysis;
 
-import com.atlastic.ocuray.Constants;
-import com.atlastic.ocuray.utils.LogUtils;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;

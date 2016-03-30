@@ -5,7 +5,7 @@ import java.util.*;
 import java.util.List;
 
 /**
- * Created by khadirbaaoua on 08/03/2016.
+ * Created by khadir baaoua on 08/03/2016.
  */
 public class ShapeReader {
 

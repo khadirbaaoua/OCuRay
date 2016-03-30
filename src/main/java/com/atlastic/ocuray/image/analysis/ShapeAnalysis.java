@@ -114,22 +114,13 @@ public class ShapeAnalysis {
         shapeModel.setMaxx(maxx);
         shapeModel.setMaxy(maxy);
         shapeModel.setDiag(ShapeMaths.computeDistanceForPoints(new Point(minx, miny), new Point(maxx, maxy)));
-        shapeModel.setRatio((maxy - miny) / (maxx - minx));
+        shapeModel.setRatio(((double) (maxy - miny)) / ((double) (maxx - minx)));
         shapeModel.setWidth(maxy - miny);
         shapeModel.setHeight(maxx - minx);
         Point center = new Point();
-        center.setLocation((maxx - minx) / 2, (maxy - miny) / 2);
+        center.setLocation((maxx - ((maxx - minx) / 2.0)), (maxy - ((maxy - miny) / 2.0)));
         shapeModel.setCenter(center);
     }
-
-    public static double computeAverageCharSize(List<ShapeModel> shapes) {
-        double sum = 0.0;
-        for (ShapeModel shape : shapes) {
-            sum += shape.getSize();
-        }
-        return sum / shapes.size();
-    }
-
 
     // binarize the shape, extract outline, vectorize and match character
     public static List<ShapeModel> analyzeShapes(List<List<Point>> shapes) {
@@ -138,24 +129,36 @@ public class ShapeAnalysis {
         ShapeVector[] vecs;
         char c;
         int nbShapes = 0;
-        double totalSizeDiag = 0.0;
+        double totalSizeDiag = 0.0, maxHeight = -1.0, totalHeight = 0.0;
         for (List<Point> shape : shapes) {
             // binarize the shape and its sides
             shapeModel = ShapeAnalysis.analyzeShape(shape);
             // vectorize shapes' sides
             vecs = ShapeUtils.vectorizeShape(shapeModel.getSideInformation());
-            // compare the vectors to ref db and extract matching character
-            c = ShapeComparator.compareShapeWithDb(vecs);
-            // and set it to the binarized shape
-            shapeModel.setC(c);
+            shapeModel.setVectors(vecs);
             // calculate the relative size overall
             totalSizeDiag += shapeModel.getDiag();
             nbShapes++;
-            System.out.println("Got the character "+c);
+            maxHeight = (shapeModel.getHeight() > maxHeight ? shapeModel.getHeight() : maxHeight);
+            totalHeight += shapeModel.getHeight();
+            res.add(shapeModel);
         }
         if (nbShapes != 0) {
             ShapeComparator.averageSize = totalSizeDiag / nbShapes;
+            ShapeComparator.averageLetterHeight = totalHeight / nbShapes;
             System.out.println("Average diag size is "+ShapeComparator.averageSize);
+            System.out.println("Average height size is "+ShapeComparator.averageLetterHeight);
+        }
+        // second run to set the relative size and compare shape with refDB
+        for (ShapeModel shape : res) {
+            // set the relative size
+            shape.setRelativeSize(shape.getHeight() / maxHeight);
+            // compare the vectors to ref db and extract matching character
+            //System.out.println("Shape ratio,size = "+shape.getRatio()+ "," + shape.getRelativeSize());
+            c = ShapeComparator.compareShapeWithDb(shape.getVectors(), shape.getRelativeSize(), shape.getRatio());
+            System.out.println("Got the character "+c);
+            // and set it to the binarized shape
+            shape.setC(c);
         }
         return res;
     }

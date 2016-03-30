@@ -1,7 +1,7 @@
 package com.atlastic.ocuray.image.filter;
 
 /**
- * Created by khadirbaaoua on 10/01/2016.
+ * Created by khadir baaoua on 10/01/2016.
  */
 public class NoiseFilter implements AbstractFilter {
     // ALGO : delete all pixels that have no neighbours (i.e white pixels)

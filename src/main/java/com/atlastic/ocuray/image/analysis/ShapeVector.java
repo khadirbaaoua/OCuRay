@@ -9,14 +9,14 @@ public class ShapeVector {
     private double[] coord;
 
     public ShapeVector(String str) {
-        System.out.println("New shape vector with string : "+str);
+        //System.out.println("New shape vector with string : "+str);
         String[] coords = str.split(",");
         if (coords != null && coords.length > 0) {
             this.size = coords.length;
             this.coord = new double[coords.length];
             int i = 0;
             for (String doubleStr : coords) {
-                System.out.println("Trying to parse : "+doubleStr);
+                //System.out.println("Trying to parse : "+doubleStr);
                 this.coord[i++] = Double.parseDouble(doubleStr);
             }
         }

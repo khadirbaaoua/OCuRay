@@ -15,7 +15,7 @@ public class TextAnalysis {
     public static double extractAmount(final Line line) {
         double res = -1;
         for (String str : line.toStr()) {
-            for
+            //for
         }
         return res;
     }

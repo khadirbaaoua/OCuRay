@@ -8,15 +8,17 @@ import java.util.List;
 public class DbRef {
     private char c;
     private double ratio;
+    private double relativeSize;
     private ShapeVector[] sides;
     private DbRef ref = null;
     private int counter;
     private int total;
 
-    public DbRef(final char c, final double ratio, ShapeVector[] sides) {
+    public DbRef(final char c, final double ratio, final double relativeSize, final ShapeVector[] sides) {
         this.c = c;
         this.ratio = ratio;
         this.sides = sides;
+        this.relativeSize = relativeSize;
     }
 
     public DbRef(char c, DbRef ref, final int counter, final int total) {
@@ -64,5 +66,9 @@ public class DbRef {
 
     public int getTotal() {
         return total;
+    }
+
+    public double getRelativeSize() {
+        return relativeSize;
     }
 }

@@ -10,9 +10,10 @@ import java.util.List;
 public class ShapeSemantics {
     // try to see if a shape fits into any of the lines
     public static Line getLineFromShape(final ShapeModel shape, final List<Line> lines) {
-        Point center;
+        Point center = shape.getCenter();
+        System.out.println("Center of shape : "+center);
         for (Line line : lines) {
-            center = shape.getCenter();
+            System.out.println("Line minx "+line.getMinx()+", height : "+line.getHeight());
             if (center.x >= line.getMinx() && (center.x <= (line.getMinx() + line.getHeight()))) {
                 return line;
             }
@@ -31,8 +32,11 @@ public class ShapeSemantics {
             if (match != null) {
                 shape.setLine(match);
             } else {
-                match = new Line(shape.getMinx(), shape.getHeight());
+                System.out.println("========= Creating new line");
+                match = new Line(shape.getMinx(), ShapeComparator.averageLetterHeight);
+                lines.add(match);
             }
+            System.out.println("Addind letter[" + shape.getC() + "] to line");
             match.addLetter(shape);
         }
         return lines;
@@ -216,12 +220,15 @@ public class ShapeSemantics {
     // do all the work expected
     public static List<Line> getSemanticsOutOfShapes(final List<ShapeModel> shapes) {
         // regroup shapes by line
+        System.out.println("Regrouping shapes by line");
         List<Line> lines = regroupShapesByLine(shapes);
         // try to match compounds for each line
+        System.out.println("Trying to find any compound");
         for (Line line : lines) {
             regroupSplittedShapes(line);
         }
         // and then regroup the letters for each line
+        System.out.println("Trying to regroup letters");
         regroupAllLetters(lines);
         return lines;
     }

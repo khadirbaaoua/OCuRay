@@ -23,6 +23,7 @@ public class ShapeModel {
     private Line line;
     private char c;
     ShapeSide[] sideInformation;
+    ShapeVector[] vectors;
     private boolean isHollow = false;
 
     public ShapeModel() {
@@ -160,5 +161,13 @@ public class ShapeModel {
 
     public void setDiag(double diag) {
         this.diag = diag;
+    }
+
+    public ShapeVector[] getVectors() {
+        return vectors;
+    }
+
+    public void setVectors(ShapeVector[] vectors) {
+        this.vectors = vectors;
     }
 }

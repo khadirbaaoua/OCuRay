@@ -18,6 +18,7 @@ import java.util.Map;
 public class ShapeComparator {
     public static List<DbRef> dbReferences = new ArrayList();
     public static double averageSize = 0.0;
+    public static double averageLetterHeight = 0.0;
 
     // euclidian distance between two sides, the more it nears the 0, the nearer the shapes are
     public static double computeEuclidianDistance(final ShapeVector v1, final ShapeVector v2) {
@@ -34,7 +35,8 @@ public class ShapeComparator {
     }
 
     // euclidian distances between two shapes
-    public static double getSimilarityBetweenSides(final ShapeVector[] v1, final ShapeVector[] v2) {
+    public static double getSimilarityBetweenSides(final ShapeVector[] v1, final ShapeVector[] v2,
+                                                   final double ratioV1, final double ratioV2) {
         double res = 0.0;
         double tmp;
         for (int i = 0; i < 4; i++) {
@@ -42,11 +44,14 @@ public class ShapeComparator {
             //System.out.println("Similarity between sides ["+i+"] : ["+tmp+"]");
             res += tmp;
         }
-        return res / 4;
+        // added fifth coordinate to vector (ratio)
+        //System.out.println("Ratio shape [" + ratioV1 + "], ratio ref ["+ratioV2+"]");
+        res += Math.sqrt(Math.pow(ratioV1 - ratioV2, 2));
+        return res / 5;
     }
 
 
-    public static char compareShapeWithDb(final ShapeVector[] v1) {
+    public static char compareShapeWithDb(final ShapeVector[] v1, final double relativeSize, final double ratio) {
         double res = -1.0;
         char c = '∏';
         double tmp;
@@ -58,8 +63,13 @@ public class ShapeComparator {
                 continue;
             }
             //System.out.println("Comparing to ref ["+dbRef.getC()+"]");
-            tmp = getSimilarityBetweenSides(v1, dbRef.getSides());
-            //System.out.println("Result : "+tmp);
+            tmp = getSimilarityBetweenSides(v1, dbRef.getSides(), ratio, dbRef.getRatio());
+            // weight euclidian distance with size difference
+            tmp /= 1 - (Math.abs(dbRef.getRelativeSize() - relativeSize));
+            // and ratio
+            //tmp /= 1 - (Math.abs(dbRef.getRatio() - ratio));
+
+            //System.out.println("Result for ref ["+dbRef.getC()+","+relativeSize+ "," + ratio + "] = "+tmp);
             if (res == -1 || tmp < res) {
                 //System.out.println("Setting nearest match to "+dbRef.getC());
                 res = tmp;
@@ -87,7 +97,7 @@ public class ShapeComparator {
         System.out.println("Full path of file : "+ dbFile.getAbsolutePath());
         if (dbFile.exists()) {
             List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(path));
-            double ratio;
+            double ratio, relativeSize;
             char c;
             ShapeVector[] curRef;
             for (String line : lines) {
@@ -98,7 +108,7 @@ public class ShapeComparator {
                 String[] lineData = line.split(" ");
                 c = lineData[0].charAt(0);
                 if (lineData.length == 4) {
-                    DbRef ref = getDbRefFromChar(c);
+                    DbRef ref = getDbRefFromChar(lineData[1].charAt(0));
                     if (ref != null) {
                         dbReferences.add(new DbRef(c, ref, Integer.parseInt(lineData[2]),
                                 Integer.parseInt(lineData[2])));
@@ -110,9 +120,10 @@ public class ShapeComparator {
                     curRef[0] = new ShapeVector(lineData[1]);
                     curRef[1] = new ShapeVector(lineData[2]);
                     curRef[2] = new ShapeVector(lineData[3]);
-                    curRef[3] = new ShapeVector(lineData[5]);
+                    curRef[3] = new ShapeVector(lineData[4]);
                     ratio = Double.parseDouble(lineData[5]);
-                    dbReferences.add(new DbRef(c, ratio, curRef));
+                    relativeSize = Double.parseDouble(lineData[6]);
+                    dbReferences.add(new DbRef(c, ratio, relativeSize, curRef));
                 }
             }
         } else {

@@ -40,12 +40,17 @@ public class Main {
             System.out.println("Loading DB ref");
             ShapeComparator.loadDbRef();
         } catch (IOException ioe) {
-
+            System.err.println(ioe.getMessage());
+            return ;
         }
         System.out.println("Analyzing shape outline");
         List<ShapeModel> letters = ShapeAnalysis.analyzeShapes(shapes);
         System.out.println("Analyzing letters and extracting words");
         List<Line> lines = ShapeSemantics.getSemanticsOutOfShapes(letters);
+        System.out.println("Displaying lines and words");
+        for (Line line : lines) {
+
+        }
         System.out.println("MAIN Over");
     }
 }

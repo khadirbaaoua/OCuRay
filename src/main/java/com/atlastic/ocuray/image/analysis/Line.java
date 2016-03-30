@@ -8,12 +8,12 @@ import java.util.List;
  */
 public class Line {
     private int minx;
-    private int height;
+    private double height;
     private List<ShapeModel> letters = new ArrayList<>();
     private List<Word> words = new ArrayList<>();
     private List<String> wordsStr = null;
 
-    public Line(final int minx, final int height) {
+    public Line(final int minx, final double height) {
         this.minx = minx;
         this.height = height;
     }
@@ -26,7 +26,7 @@ public class Line {
         this.minx = minx;
     }
     
-    public int getHeight() {
+    public double getHeight() {
         return height;
     }
 

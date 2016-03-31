@@ -10,11 +10,11 @@ import java.util.List;
 public class ShapeSemantics {
     // try to see if a shape fits into any of the lines
     public static Line getLineFromShape(final ShapeModel shape, final List<Line> lines) {
-        Point center = shape.getCenter();
-        System.out.println("Center of shape : "+center);
+        int centerx = shape.getCenter().x, minx = shape.getMinx();
+        //System.out.println("Center of shape : "+centerx);
         for (Line line : lines) {
-            System.out.println("Line minx "+line.getMinx()+", height : "+line.getHeight());
-            if (center.x >= line.getMinx() && (center.x <= (line.getMinx() + line.getHeight()))) {
+            if ((centerx >= line.getMinx() && (centerx <= (line.getMinx() + line.getHeight())))
+                || (minx >= line.getMinx() && (minx <= (line.getMinx() + line.getHeight())))){
                 return line;
             }
         }
@@ -32,11 +32,9 @@ public class ShapeSemantics {
             if (match != null) {
                 shape.setLine(match);
             } else {
-                System.out.println("========= Creating new line");
-                match = new Line(shape.getMinx(), ShapeComparator.averageLetterHeight);
+                match = new Line(shape.getMinx(), ShapeComparator.averageSize);
                 lines.add(match);
             }
-            System.out.println("Addind letter[" + shape.getC() + "] to line");
             match.addLetter(shape);
         }
         return lines;
@@ -77,7 +75,7 @@ public class ShapeSemantics {
     }
 
 
-    // group compounds by char (compounds are already ordered in the ref db file
+    // group compounds by char (compounds are already ordered in the ref db file)
     public static List<List<DbRef>> groupCompounds(final List<DbRef> compounds) {
         List<List<DbRef>> res = new ArrayList<>();
         List<DbRef> currentCompound = null;
@@ -88,6 +86,8 @@ public class ShapeSemantics {
                     res.add(currentCompound);
                 }
                 currentCompound = new ArrayList<>();
+                currentCompound.add(dbRef);
+                currentC = dbRef.getRef().getC();
             } else {
                 currentCompound.add(dbRef);
             }
@@ -136,11 +136,15 @@ public class ShapeSemantics {
                                                                final List<ShapeModel> currentMatched) {
         int[] matchedLetters = new int[compound.size()];
         List<ShapeModel> lettersMatched = new ArrayList<>();
+        System.out.println("Created arrayMatchLetters with size : "+compound.size());
         for (ShapeModel letter : letters) {
+            System.out.println("Trying to match letter ="+letter.getC());
             for (DbRef compoundLetter : compound) {
+                System.out.println("CurrentCompound : "+compoundLetter.getC()+"/"+compoundLetter.getCounter()+"/"
+                +compoundLetter.getTotal());
                 if (letter.getC() == compoundLetter.getC() && !currentMatched.contains(letter)
-                        && matchedLetters[compoundLetter.getCounter()] != 1) {
-                    matchedLetters[compoundLetter.getCounter()] = 1;
+                        && matchedLetters[compoundLetter.getCounter() - 1] != 1) {
+                    matchedLetters[compoundLetter.getCounter() - 1] = 1;
                     lettersMatched.add(letter);
                 }
             }
@@ -170,14 +174,18 @@ public class ShapeSemantics {
         List<ShapeModel> compoundMatch = null;
         List<ShapeModel> matchedLetters = new ArrayList<>();
         boolean isMatch;
+        System.out.println("Trying to match " + compounds.size() + " compounds");
         for (List<DbRef> compound : compounds) {
+            System.out.println("Current compound size "+compound.size());
             compoundMatch = matchSingleCompoundWithLine(compound, letters, matchedLetters);
             if (compoundMatch != null) {
+                System.out.println("Found a compound match for shapes : ");
+                compoundMatch.forEach(t -> System.out.println(t.getC() + " "));
                 matchedLetters.addAll(compoundMatch);
                 // merge shapes && update to matched char
                 // i.e. update the 1st shape to the char and
                 // set the other to hollow state
-                updateShapesToChar(compoundMatch, compound.get(0).getC());
+                updateShapesToChar(compoundMatch, compound.get(0).getRef().getC());
             }
         }
         return matchedLetters;
@@ -185,14 +193,14 @@ public class ShapeSemantics {
 
     // utility to merge shapes that share the same space but are not linked
     // i.e.  : ; % ! ? = ¨ "
-    public static void regroupSplittedShapes(final Line line) {
+    public static void regroupSplittedShapes(final Line line, final List<List<DbRef>> compounds) {
         // in the line, we try to see if there any characters that match compounds in the ref db
         // if so, we try to see if any set of matched characters are in the line and in the same
         // vicinity
         boolean res;
         // try to match compounds until none can be matched
         do {
-            res = matchCompounsdWithLine(groupCompounds(getRefCompounds(ShapeComparator.dbReferences)), line).size() > 0;
+            res = matchCompounsdWithLine(compounds, line).size() > 0;
         } while (res);
     }
 
@@ -222,10 +230,13 @@ public class ShapeSemantics {
         // regroup shapes by line
         System.out.println("Regrouping shapes by line");
         List<Line> lines = regroupShapesByLine(shapes);
+        System.out.println("Got "+lines.size()+" line(s)");
         // try to match compounds for each line
         System.out.println("Trying to find any compound");
+        List<List<DbRef>> compounds = groupCompounds(getRefCompounds(ShapeComparator.dbReferences));
+        System.out.println("Got "+compounds.size()+" compounds");
         for (Line line : lines) {
-            regroupSplittedShapes(line);
+            regroupSplittedShapes(line, compounds);
         }
         // and then regroup the letters for each line
         System.out.println("Trying to regroup letters");

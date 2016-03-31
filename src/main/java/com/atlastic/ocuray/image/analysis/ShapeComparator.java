@@ -108,7 +108,8 @@ public class ShapeComparator {
                 String[] lineData = line.split(" ");
                 c = lineData[0].charAt(0);
                 if (lineData.length == 4) {
-                    DbRef ref = getDbRefFromChar(lineData[1].charAt(0));
+                    c = lineData[1].charAt(0);
+                    DbRef ref = getDbRefFromChar(c);
                     if (ref != null) {
                         dbReferences.add(new DbRef(c, ref, Integer.parseInt(lineData[2]),
                                 Integer.parseInt(lineData[2])));

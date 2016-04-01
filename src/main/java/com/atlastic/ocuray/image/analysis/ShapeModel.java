@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by khadirbaaoua on 15/03/2016.
  */
-public class ShapeModel {
+public class ShapeModel implements Comparable<ShapeModel> {
     private int size;
     private double ratio;
     private double relativeSize;
@@ -169,5 +169,15 @@ public class ShapeModel {
 
     public void setVectors(ShapeVector[] vectors) {
         this.vectors = vectors;
+    }
+
+    public int compareTo(ShapeModel o) {
+        if (this.getMinx() < o.getMinx()) {
+            return -1;
+        } else if (this.getMinx() > o.getMinx()) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }

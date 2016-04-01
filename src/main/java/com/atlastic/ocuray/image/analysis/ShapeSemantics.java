@@ -2,6 +2,7 @@ package com.atlastic.ocuray.image.analysis;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -65,6 +66,7 @@ public class ShapeSemantics {
              } else {
                  currentSpacing = getSpacingBetweenLetters(letters.get(i - 1), letters.get(i));
                  if (currentSpacing <= spacing) {
+                     System.out.println("Adding "+letters.get(i).getC()+ " to current word");
                      current.addLetter(letters.get(i));
                  } else {
                      current = new Word(letters.get(i));
@@ -87,11 +89,12 @@ public class ShapeSemantics {
                 }
                 currentCompound = new ArrayList<>();
                 currentCompound.add(dbRef);
-                currentC = dbRef.getRef().getC();
+                currentC = dbRef.getC();
             } else {
                 currentCompound.add(dbRef);
             }
         }
+        res.add(currentCompound);
         return res;
     }
 
@@ -133,19 +136,23 @@ public class ShapeSemantics {
     // try to match a compound with a list of letter (n->n matching)
     public static List<ShapeModel> matchSingleCompoundWithLine(final List<DbRef> compound,
                                                                final List<ShapeModel> letters,
-                                                               final List<ShapeModel> currentMatched) {
+                                                               final List<ShapeModel> currentMatched,
+                                                               final List<ShapeModel> allMatched) {
         int[] matchedLetters = new int[compound.size()];
         List<ShapeModel> lettersMatched = new ArrayList<>();
-        System.out.println("Created arrayMatchLetters with size : "+compound.size());
         for (ShapeModel letter : letters) {
-            System.out.println("Trying to match letter ="+letter.getC());
+            if (currentMatched.contains(letter) || allMatched.contains(letter)) {
+                continue;
+            }
+            //System.out.println("Trying to match letter ="+letter.getC());
             for (DbRef compoundLetter : compound) {
-                System.out.println("CurrentCompound : "+compoundLetter.getC()+"/"+compoundLetter.getCounter()+"/"
-                +compoundLetter.getTotal());
-                if (letter.getC() == compoundLetter.getC() && !currentMatched.contains(letter)
+                //System.out.println("CurrentCompound : "+compoundLetter.getRef().getC()+"/"+compoundLetter.getC()+"/"+compoundLetter.getCounter()+"/"
+                //+compoundLetter.getTotal());
+                if (letter.getC() == compoundLetter.getRef().getC()
                         && matchedLetters[compoundLetter.getCounter() - 1] != 1) {
                     matchedLetters[compoundLetter.getCounter() - 1] = 1;
                     lettersMatched.add(letter);
+                    break;
                 }
             }
         }
@@ -158,29 +165,45 @@ public class ShapeSemantics {
     }
 
     // set first shape to char and set others as hollow
+    // update coordinate to mimic the whole shape
     public static void updateShapesToChar(List<ShapeModel> shapes, final char c) {
+        ShapeModel shapeFirst = shapes.get(0), currentShape;
+        int minx = shapeFirst.getMinx(), maxx = shapeFirst.getMaxx(),
+                miny = shapeFirst.getMiny(), maxy = shapeFirst.getMaxy();
         for (int i = 0; i < shapes.size(); i++) {
-            if (i == 0) {
-                shapes.get(i).setC(c);
-            } else {
-                shapes.get(i).setIsHollow(true);
+            currentShape = shapes.get(i);
+            if (i !=0 ) {
+                currentShape.setIsHollow(true);
             }
+            minx = currentShape.getMinx() < minx ? currentShape.getMinx() : minx;
+            miny = currentShape.getMiny() < miny ? currentShape.getMiny() : miny;
+            maxx = currentShape.getMaxx() > maxx ? currentShape.getMaxx() : maxx;
+            maxy = currentShape.getMaxy() > maxy ? currentShape.getMaxy() : maxy;
         }
+        shapeFirst.setDiag(ShapeMaths.computeDistanceForPoints(new Point(minx, miny), new Point(maxx, maxy)));
+        shapeFirst.setRatio(((double) (maxy - miny)) / ((double) (maxx - minx)));
+        shapeFirst.setWidth(maxy - miny);
+        shapeFirst.setHeight(maxx - minx);
+        Point center = new Point();
+        center.setLocation((maxx - ((maxx - minx) / 2.0)), (maxy - ((maxy - miny) / 2.0)));
+        shapeFirst.setCenter(center);
     }
 
     // try to match a any of the compound within the line
-    public static List<ShapeModel> matchCompounsdWithLine(final List<List<DbRef>> compounds, final Line line) {
+    public static List<ShapeModel> matchCompounsdWithLine(final List<List<DbRef>> compounds, final Line line,
+                                                          List<ShapeModel> allMatched) {
         List<ShapeModel> letters = line.getLetters();
         List<ShapeModel> compoundMatch = null;
         List<ShapeModel> matchedLetters = new ArrayList<>();
         boolean isMatch;
-        System.out.println("Trying to match " + compounds.size() + " compounds");
+        //System.out.println("Trying to match " + compounds.size() + " compounds");
         for (List<DbRef> compound : compounds) {
-            System.out.println("Current compound size "+compound.size());
-            compoundMatch = matchSingleCompoundWithLine(compound, letters, matchedLetters);
+            //System.out.println("Current compound size "+compound.size());
+            compoundMatch = matchSingleCompoundWithLine(compound, letters, matchedLetters, allMatched);
             if (compoundMatch != null) {
                 System.out.println("Found a compound match for shapes : ");
-                compoundMatch.forEach(t -> System.out.println(t.getC() + " "));
+                compoundMatch.forEach(t -> System.out.print(t.getC() + " "));
+                System.out.println();
                 matchedLetters.addAll(compoundMatch);
                 // merge shapes && update to matched char
                 // i.e. update the 1st shape to the char and
@@ -198,9 +221,14 @@ public class ShapeSemantics {
         // if so, we try to see if any set of matched characters are in the line and in the same
         // vicinity
         boolean res;
+        List<ShapeModel> allMatched = new ArrayList<>(), currentMatched;
         // try to match compounds until none can be matched
         do {
-            res = matchCompounsdWithLine(compounds, line).size() > 0;
+            currentMatched = matchCompounsdWithLine(compounds, line, allMatched);
+            res = currentMatched.size() > 0;
+            if (res) {
+                allMatched.addAll(currentMatched);
+            }
         } while (res);
     }
 
@@ -210,6 +238,7 @@ public class ShapeSemantics {
         double spacing;
         for (Line line : lines) {
             spacing = getMaximumSpacingForLine(line);
+            System.out.println("Max spacing for line: "+spacing);
             regroupLettersByWords(line, spacing);
         }
     }
@@ -225,8 +254,22 @@ public class ShapeSemantics {
         return res;
     }
 
+    // remove hollow letters from shapes list
+    public static void removeHollowShapes(List<ShapeModel> shapes) {
+        List<ShapeModel> toRemove = new ArrayList<>();
+        for (ShapeModel shape : shapes) {
+            if (shape.isHollow()) {
+                toRemove.add(shape);
+            }
+        }
+        System.out.println("Removing "+toRemove.size()+" hollow shapes");
+        if (toRemove.size() > 0) {
+            shapes.removeAll(toRemove);
+        }
+    }
+
     // do all the work expected
-    public static List<Line> getSemanticsOutOfShapes(final List<ShapeModel> shapes) {
+    public static List<Line> getSemanticsOutOfShapes(List<ShapeModel> shapes) {
         // regroup shapes by line
         System.out.println("Regrouping shapes by line");
         List<Line> lines = regroupShapesByLine(shapes);
@@ -234,10 +277,18 @@ public class ShapeSemantics {
         // try to match compounds for each line
         System.out.println("Trying to find any compound");
         List<List<DbRef>> compounds = groupCompounds(getRefCompounds(ShapeComparator.dbReferences));
-        System.out.println("Got "+compounds.size()+" compounds");
+        System.out.println("Got "+compounds.size()+" compounds from the ref file");
         for (Line line : lines) {
             regroupSplittedShapes(line, compounds);
         }
+        System.out.println("Removing hollow shapes");
+        removeHollowShapes(shapes);
+        // sort shapes
+        System.out.println("Shapes before sorting");
+        shapes.forEach(t -> System.out.print(t.getC() + "__"));
+        Collections.sort(shapes);
+        System.out.println("Shapes after sorting");
+        shapes.forEach(t -> System.out.print(t.getC() + "__"));
         // and then regroup the letters for each line
         System.out.println("Trying to regroup letters");
         regroupAllLetters(lines);

@@ -82,7 +82,7 @@ public class ShapeComparator {
     // get db ref with corresponding char
     public static DbRef getDbRefFromChar(final char c) {
         for (DbRef dbRef : dbReferences) {
-            if (dbRef.getC() == c) {
+            if (dbRef.getC() == c && !dbRef.isMultipartRef()) {
                 return dbRef;
             }
         }
@@ -111,8 +111,8 @@ public class ShapeComparator {
                     c = lineData[1].charAt(0);
                     DbRef ref = getDbRefFromChar(c);
                     if (ref != null) {
-                        dbReferences.add(new DbRef(c, ref, Integer.parseInt(lineData[2]),
-                                Integer.parseInt(lineData[2])));
+                        dbReferences.add(new DbRef(lineData[0].charAt(0), ref, Integer.parseInt(lineData[2]),
+                                Integer.parseInt(lineData[3])));
                     } else {
                         throw new IOException("Missing ref in reference file or order is wrong ?");
                     }

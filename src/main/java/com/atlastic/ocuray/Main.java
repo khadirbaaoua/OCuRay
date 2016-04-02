@@ -49,7 +49,7 @@ public class Main {
         List<Line> lines = ShapeSemantics.getSemanticsOutOfShapes(letters);
         System.out.println("Displaying lines and words");
         for (Line line : lines) {
-
+            System.out.println("Line : [" + line.toStr() + "]");
         }
         System.out.println("MAIN Over");
     }

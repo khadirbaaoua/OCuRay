@@ -44,9 +44,7 @@ public class ShapeSemantics {
     // get the minimum space between two letters
     public static double getSpacingBetweenLetters(final ShapeModel letter1, final ShapeModel letter2) {
         double res = -1.0;
-        Point center1 = letter1.getCenter();
-        Point center2 = letter2.getCenter();
-        if (center1.getY() > center2.getY()) {
+        if (letter1.getMaxy() > letter2.getMiny()) {
             res = letter1.getMiny() - letter2.getMaxy();
         } else {
             res = letter2.getMiny() - letter1.getMaxy();
@@ -60,16 +58,17 @@ public class ShapeSemantics {
         List<ShapeModel> letters = line.getLetters();
         Word current = new Word();
         double currentSpacing;
-        for (int i = 0; i < letters.size() - 1; i++) {
-             if (i == 0 || i == letters.size() - 1) {
+        for (int i = 0; i < letters.size(); i++) {
+             if (i == 0) {
                  current.addLetter(letters.get(i));
+                 words.add(current);
              } else {
                  currentSpacing = getSpacingBetweenLetters(letters.get(i - 1), letters.get(i));
                  if (currentSpacing <= spacing) {
-                     System.out.println("Adding "+letters.get(i).getC()+ " to current word");
                      current.addLetter(letters.get(i));
                  } else {
                      current = new Word(letters.get(i));
+                     words.add(current);
                  }
              }
         }
@@ -246,13 +245,11 @@ public class ShapeSemantics {
 
     // calculate the maximum spacing between letters
     public static double getMaximumSpacingForLine(final Line line) {
-        double res = -1, tmp;
-        List<ShapeModel> letters = line.getLetters();
-        for (int i = 0; i < letters.size() - 2; i++) {
-            tmp = getSpacingBetweenLetters(letters.get(i), letters.get(i + 1));
-            res = ((res == -1 || tmp > res) ? tmp : res);
+        double res = -1.0;
+        for (ShapeModel letter : line.getLetters()) {
+            res = (res < letter.getWidth() ? letter.getWidth() : res);
         }
-        return res;
+        return res / 2.5;
     }
 
     // remove hollow letters from shapes list
@@ -281,17 +278,16 @@ public class ShapeSemantics {
         System.out.println("Got "+compounds.size()+" compounds from the ref file");
         for (Line line : lines) {
             regroupSplittedShapes(line, compounds);
+            System.out.println("Removing hollow shapes");
+            removeHollowShapes(line.getLetters());
+            System.out.println("Shapes before sorting");
+            line.getLetters().forEach(t -> System.out.print(t.getC() + "__"));
+            Collections.sort(line.getLetters());
+            System.out.println("\nShapes after sorting");
+            line.getLetters().forEach(t -> System.out.print(t.getC() + "__"));
         }
-        System.out.println("Removing hollow shapes");
-        removeHollowShapes(shapes);
-        // sort shapes
-        System.out.println("Shapes before sorting");
-        shapes.forEach(t -> System.out.print(t.getC() + "__"));
-        Collections.sort(shapes);
-        System.out.println("Shapes after sorting");
-        shapes.forEach(t -> System.out.print(t.getC() + "__"));
         // and then regroup the letters for each line
-        System.out.println("Trying to regroup letters");
+        System.out.println("\nTrying to regroup letters");
         regroupAllLetters(lines);
         return lines;
     }

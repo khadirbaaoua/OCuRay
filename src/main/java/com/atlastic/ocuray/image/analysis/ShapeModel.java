@@ -171,10 +171,11 @@ public class ShapeModel implements Comparable<ShapeModel> {
         this.vectors = vectors;
     }
 
+    @Override
     public int compareTo(ShapeModel o) {
-        if (this.getMinx() < o.getMinx()) {
+        if (this.getMiny() < o.getMiny()) {
             return -1;
-        } else if (this.getMinx() > o.getMinx()) {
+        } else if (this.getMiny() > o.getMiny()) {
             return 1;
         } else {
             return 0;

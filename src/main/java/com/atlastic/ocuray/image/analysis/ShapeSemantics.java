@@ -180,6 +180,7 @@ public class ShapeSemantics {
             maxx = currentShape.getMaxx() > maxx ? currentShape.getMaxx() : maxx;
             maxy = currentShape.getMaxy() > maxy ? currentShape.getMaxy() : maxy;
         }
+        shapeFirst.setC(c);
         shapeFirst.setDiag(ShapeMaths.computeDistanceForPoints(new Point(minx, miny), new Point(maxx, maxy)));
         shapeFirst.setRatio(((double) (maxy - miny)) / ((double) (maxx - minx)));
         shapeFirst.setWidth(maxy - miny);
@@ -208,7 +209,7 @@ public class ShapeSemantics {
                 // merge shapes && update to matched char
                 // i.e. update the 1st shape to the char and
                 // set the other to hollow state
-                updateShapesToChar(compoundMatch, compound.get(0).getRef().getC());
+                updateShapesToChar(compoundMatch, compound.get(0).getC());
             }
         }
         return matchedLetters;

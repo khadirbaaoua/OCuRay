@@ -66,9 +66,9 @@ public class Line {
         return res;
     }
 
-    public int contains(final String pattern) {
+    public boolean contains(final String pattern) {
         if (pattern == null || pattern.equals("")) {
-            return -1;
+            return false;
         }
         if (this.wordsStr == null) {
             this.toStr();
@@ -76,10 +76,27 @@ public class Line {
         int i = 0;
         for (String str : wordsStr) {
             if (pattern.equalsIgnoreCase(str)) {
-                return i;
+                return true;
             }
             i++;
         }
-        return -1;
+        return false;
+    }
+
+    public String extractWord(final String pattern, final Line line) {
+        if (pattern == null || pattern.equals("")) {
+            return null;
+        }
+        if (this.wordsStr == null) {
+            this.toStr();
+        }
+        String tmp;
+        for (Word word : line.getWords()) {
+            tmp = word.match(pattern);
+            if (tmp != null) {
+                return tmp;
+            }
+        }
+        return null;
     }
 }

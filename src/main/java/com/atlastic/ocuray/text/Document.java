@@ -1,7 +1,6 @@
 package com.atlastic.ocuray.text;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by khadirbaaoua on 03/04/2016.
@@ -11,9 +10,9 @@ public class Document {
      * object that contain all "interesting" data for a ticket/document/whatever
      */
     private Date date;
-    private List<TVA> tvaList;
-    private List<TTC> ttcList;
-    private List<Total> totalList;
+    private Map<Double, Double> tvaList = new HashMap<>();
+    private Map<Double, Double> ttcList  = new HashMap<>();;
+    private Map<Double, Double> totalList = new HashMap<>();;
     private String category;
     private String etablissement;
     private String address;
@@ -29,28 +28,16 @@ public class Document {
         this.date = date;
     }
 
-    public List<TVA> getTvaList() {
+    public Map<Double, Double> getTvaList() {
         return tvaList;
     }
 
-    public void setTvaList(List<TVA> tvaList) {
-        this.tvaList = tvaList;
-    }
-
-    public List<TTC> getTtcList() {
+    public Map<Double, Double> getTtcList() {
         return ttcList;
     }
 
-    public void setTtcList(List<TTC> ttcList) {
-        this.ttcList = ttcList;
-    }
-
-    public List<Total> getTotalList() {
+    public Map<Double, Double> getTotalList() {
         return totalList;
-    }
-
-    public void setTotalList(List<Total> totalList) {
-        this.totalList = totalList;
     }
 
     public String getCategory() {
@@ -75,5 +62,25 @@ public class Document {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer strBuf = new StringBuffer();
+        strBuf.append("Document :\n")
+                .append("Date = "+this.date)
+                .append("\nCategory = " + this.category)
+                .append("\nEtablissement = "+this.etablissement)
+                .append("\nAddress = " + this.address);
+        for (Map.Entry<Double, Double> tva : tvaList.entrySet()) {
+            strBuf.append("\nTVA = ["+tva.getKey()+"%, "+tva.getValue()+"]");
+        }
+        for (Map.Entry<Double, Double> ttc : ttcList.entrySet()) {
+            strBuf.append("\nTTC = ["+ttc.getKey()+"%, "+ttc.getValue()+"]");
+        }
+        for (Map.Entry<Double, Double> total : totalList.entrySet()) {
+            strBuf.append("\nTOTAL = ["+total.getKey()+"%, "+total.getValue()+"]");
+        }
+        return strBuf.toString();
     }
 }

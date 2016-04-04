@@ -5,6 +5,8 @@ import com.atlastic.ocuray.image.filter.ContrastFilter;
 import com.atlastic.ocuray.image.filter.NoiseFilter;
 import com.atlastic.ocuray.image.tool.FileHelper;
 import com.atlastic.ocuray.image.tool.ImageHelper;
+import com.atlastic.ocuray.text.Document;
+import com.atlastic.ocuray.text.TextAnalysis;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -51,6 +53,9 @@ public class Main {
         for (Line line : lines) {
             System.out.println("Line : [" + line.toStr() + "]");
         }
+        System.out.println("Semantic analysis");
+        Document doc = TextAnalysis.doTheStuff(lines);
+        System.out.println(doc.toString());
         System.out.println("MAIN Over");
     }
 }

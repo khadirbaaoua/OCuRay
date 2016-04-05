@@ -25,7 +25,7 @@ public class ShapeComparator {
         double res = 0.0;
         // vectors can't be compared because they don't have the same size
         if (v1.getSize() != v2.getSize()) {
-            return 1;
+            return 10;
         }
         final int width = v1.getSize();
         for (int i = 0; i < width; i++) {
@@ -46,36 +46,66 @@ public class ShapeComparator {
         }
         // added fifth coordinate to vector (ratio)
         //System.out.println("Ratio shape [" + ratioV1 + "], ratio ref ["+ratioV2+"]");
-        res += Math.sqrt(Math.pow(ratioV1 - ratioV2, 2));
-        return res / 5;
+        //res += Math.sqrt(Math.pow(ratioV1 - ratioV2, 2));
+        return res / 4;
     }
 
+    // double matching : size and negativity
+    public static boolean matchSides(final ShapeVector[] v, final ShapeVector[] ref) {
+        for (int i = 0; i < 4; i++) {
+            if (v[i].getSize() != ref[i].getSize()
+                    || !ShapeMaths.matchDoublesSigns(v[i].getAll(), ref[i].getAll())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static double distanceRatioSize(final double ratio1, final double ratio2, final double size1,
+                                            final double size2) {
+        double res = -1.0;
+        res += Math.pow(ratio1 -ratio2, 2);
+        res += Math.pow(size1 -size2, 2);
+        return res / 2.0;
+    }
 
     public static char compareShapeWithDb(final ShapeVector[] v1, final double relativeSize, final double ratio) {
         double res = -1.0;
         char c = '∏';
-        double tmp;
+        double tmp, tmp2;
         if (dbReferences == null || dbReferences.size() <= 0) {
             throw new RuntimeException("Ref db is not initialized, size="+dbReferences.size());
         }
+        System.out.println("Sides size");
+        for (ShapeVector v : v1) {
+            System.out.print(" "+v.getSize());
+        }
+        System.out.println();
         for (DbRef dbRef : dbReferences) {
             if (dbRef.isMultipartRef()) {
                 continue;
             }
-            //System.out.println("Comparing to ref ["+dbRef.getC()+"]");
+            // if shape's number or sides don't match, skip
+            if (!matchSides(v1, dbRef.getSides())) {
+                System.out.println("Skipping c["+dbRef.getC()+"], sides are different");
+                continue;
+            }
+            System.out.println("Comparing to ref ["+dbRef.getC()+"]");
             tmp = getSimilarityBetweenSides(v1, dbRef.getSides(), ratio, dbRef.getRatio());
-            // weight euclidian distance with size difference
-            tmp /= 1 - (Math.abs(dbRef.getRelativeSize() - relativeSize));
+            tmp2 = distanceRatioSize(ratio, dbRef.getRatio(), relativeSize, dbRef.getRelativeSize());
+            // weight euclidian distance with ration difference
+            tmp +=  (Math.abs(dbRef.getRelativeSize() - relativeSize));
             // and ratio
             //tmp /= 1 - (Math.abs(dbRef.getRatio() - ratio));
 
-            //System.out.println("Result for ref ["+dbRef.getC()+","+relativeSize+ "," + ratio + "] = "+tmp);
+            System.out.println("Result for ref ["+dbRef.getC()+","+relativeSize+ "," + ratio + "] = "+tmp+" // "+tmp2);
             if (res == -1 || tmp < res) {
                 //System.out.println("Setting nearest match to "+dbRef.getC());
                 res = tmp;
                 c = dbRef.getC();
             }
         }
+        System.out.println("==============");
         return c;
     }
 

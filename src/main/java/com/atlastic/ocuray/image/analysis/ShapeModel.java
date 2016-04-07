@@ -84,13 +84,6 @@ public class ShapeModel implements Comparable<ShapeModel> {
         this.sideInformation = sideInformation;
     }
 
-    // histogram for each side
-    public ShapeVector[] getVector() {
-        ShapeVector res[] = new ShapeVector[4];
-
-        return res;
-    }
-
     public double getRatio() {
         return ratio;
     }

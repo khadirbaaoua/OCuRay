@@ -22,7 +22,6 @@ public class FileHelper {
     }
 
     public static void writeArrayToFile(final int[][] array, final String path) throws IOException {
-        File output = new File(path);
         Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream(path), "utf-8"));
         StringBuffer sb = new StringBuffer();
@@ -62,5 +61,35 @@ public class FileHelper {
                         })
         );
         ImageIO.write(res, "png", output);
+    }
+
+    public static void writeShapeModelToFile(final String path, final List<ShapeModel> letters)
+            throws IOException {
+        File file = new File(path);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        FileWriter fw = new FileWriter(file.getAbsoluteFile());
+        Writer writer = new BufferedWriter(fw);
+        StringBuffer sb = new StringBuffer();
+        double[] cur;
+        for (ShapeModel letter : letters) {
+            sb.append(letter.getC()).append(" ");
+            // vectors
+            for (ShapeVector v : letter.getVectors()) {
+                cur = v.getAll();
+                for (int i = 0; i < cur.length; i++) {
+                    sb.append(cur[i]);
+                    if (i != cur.length - 1) {
+                        sb.append(",");
+                    }
+                }
+                sb.append(" ");
+            }
+            sb.append(letter.getRatio()).append(" ").append(letter.getRelativeSize()).append("\n");
+        }
+        writer.write(sb.toString());
+        writer.close();
+        System.out.println("Wrote the string : \n" + sb.toString());
     }
 }

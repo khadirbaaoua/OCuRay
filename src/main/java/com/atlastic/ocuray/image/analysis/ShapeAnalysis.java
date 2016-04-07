@@ -155,10 +155,12 @@ public class ShapeAnalysis {
             shape.setRelativeSize(shape.getHeight() / maxHeight);
             // compare the vectors to ref db and extract matching character
             //System.out.println("Shape ratio,size = "+shape.getRatio()+ "," + shape.getRelativeSize());
-            c = ShapeComparator.compareShapeWithDb(shape.getVectors(), shape.getRelativeSize(), shape.getRatio());
-            System.out.println("Got the character "+c);
-            // and set it to the binarized shape
-            shape.setC(c);
+            if (ShapeComparator.dbReferences != null && ShapeComparator.dbReferences.size() > 0) {
+                c = ShapeComparator.compareShapeWithDb(shape.getVectors(), shape.getRelativeSize(), shape.getRatio());
+                System.out.println("Got the character " + c);
+                // and set it to the binarized shape
+                shape.setC(c);
+            }
         }
         return res;
     }

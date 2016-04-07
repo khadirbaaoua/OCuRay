@@ -13,10 +13,12 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Created by khadirbaaoua on 07/04/2016.
+ */
 public class Main {
-
-    public static void main(String[] args) throws IOException{
-	    if (args.length != 1) {
+    public static void main(String args[]) throws Exception {
+        if (args.length != 1) {
             System.out.print("Usage : ./ocuray path-to-image");
             return;
         }
@@ -31,7 +33,7 @@ public class Main {
         FileHelper.writePixelsToImage(pixels, "grayscale-contrasted-noiseless.png");
         System.out.println("Image filtering done, reading shapes");
         List<List<Point>> shapes = ShapeReader.readShapes(pixels);
-        System.out.println("Shape reading done, "+shapes.size()+" shapes red");
+        System.out.println("Shape reading done, " + shapes.size() + " shapes red");
         FileHelper.writeShapesToImage(pixels.length, pixels[0].length, args[0] + "-shapes.png", shapes, pixels);
         System.out.println("Converting shapes to outline");
         List<List<Point>> shapesOutline = ShapeUtils.getOutlineFromShapes(pixels, shapes);
@@ -43,7 +45,7 @@ public class Main {
             ShapeComparator.loadDbRef();
         } catch (IOException ioe) {
             System.err.println(ioe.getMessage());
-            return ;
+            return;
         }
         System.out.println("Analyzing shape outline");
         List<ShapeModel> letters = ShapeAnalysis.analyzeShapes(shapes);

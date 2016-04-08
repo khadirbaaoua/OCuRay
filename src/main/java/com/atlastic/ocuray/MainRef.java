@@ -22,7 +22,8 @@ public class MainRef {
     static char[] lettersref = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', '.', 'i', '.', 'j', 'k', 'l', 'm', 'n', 'o'
             , 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
     static char[] numbers = {'1', '2', '3', '4', '5', '6', '7', '8' , '9', '0'};
-    static char[] symbols;
+    static char[] symbols = {'('};
+    static char[] symbolsref;
 
     public static void createDirectory(final String path, final String font) {
         File f = new File(path + font);
@@ -47,7 +48,8 @@ public class MainRef {
 
     public static void main(String[] args) throws IOException{
 	    String[] refs = {"capitals-generated.png", "letters-generated.png", "numbers-generated.png"/*, "signs.png"*/};
-        String[] fonts = {"Arial-black", "Verdana", "Courier", "Helvetica"};
+        String[] fonts = {"Arial-black", "Verdana", "Courier", "Helvetica", "TrebuchetMS", "Times-Roman", "Tahoma",
+        "Lucida Sans Regular", "Georgia", "ComicSansMS", "Avenir-Black", "Serif"};
         String path = "ref/";
         String currentPath;
         int i;
@@ -82,6 +84,8 @@ public class MainRef {
         System.out.println("MAIN Over");
     }
 
+
+
     public static char[] matchCharRef(final int i) {
         switch (i) {
             case 0:
@@ -91,7 +95,7 @@ public class MainRef {
             case 2:
                 return numbers;
             case 3:
-                return symbols;
+                return symbolsref;
         }
         return null;
     }

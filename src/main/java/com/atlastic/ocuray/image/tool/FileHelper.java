@@ -1,8 +1,8 @@
 package com.atlastic.ocuray.image.tool;
 
 import com.atlastic.ocuray.image.analysis.ShapeModel;
-import com.atlastic.ocuray.image.analysis.ShapeUtils;
 import com.atlastic.ocuray.image.analysis.ShapeVector;
+import org.apache.commons.io.IOUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -91,5 +91,48 @@ public class FileHelper {
         writer.write(sb.toString());
         writer.close();
         System.out.println("Wrote the string : \n" + sb.toString());
+    }
+
+    private static void joinFiles(File destination, File[] sources)
+            throws IOException {
+        OutputStream output = null;
+        try {
+            output = createAppendableStream(destination);
+            for (File source : sources) {
+                appendFile(output, source);
+            }
+        } finally {
+            IOUtils.closeQuietly(output);
+        }
+    }
+
+    private static BufferedOutputStream createAppendableStream(File destination)
+            throws FileNotFoundException {
+        return new BufferedOutputStream(new FileOutputStream(destination, true));
+    }
+
+    private static void appendFile(OutputStream output, File source)
+            throws IOException {
+        InputStream input = null;
+        try {
+            input = new BufferedInputStream(new FileInputStream(source));
+            IOUtils.copy(input, output);
+        } finally {
+            IOUtils.closeQuietly(input);
+        }
+    }
+
+    public static void mergeFilesToSingleFile(final List<String> paths, final String finalPath) {
+        File[] files = new File[paths.size()];
+        int i = 0;
+        for (String path : paths) {
+            files[i++] = new File(path);
+        }
+        File finalFile = new File(finalPath);
+        try {
+            joinFiles(finalFile, files);
+        } catch (IOException e) {
+            System.out.println("Error while merging ref files : "+e.getMessage());
+        }
     }
 }

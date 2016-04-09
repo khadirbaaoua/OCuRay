@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainRef {
@@ -24,6 +25,11 @@ public class MainRef {
     static char[] numbers = {'1', '2', '3', '4', '5', '6', '7', '8' , '9', '0'};
     static char[] symbols = {'('};
     static char[] symbolsref;
+    static String[] refs = {"capitals-generated.png", "letters-generated.png", "numbers-generated.png"/*, "signs.png"*/};
+    static String[] fonts = {"Arial-black", "Verdana", "Courier", "Helvetica", "TrebuchetMS", "Times-Roman", "Tahoma",
+            "Lucida Sans Regular", "Georgia", "ComicSansMS", "Avenir-Black", "Serif"};
+    static String path = "ref/";
+
 
     public static void createDirectory(final String path, final String font) {
         File f = new File(path + font);
@@ -47,11 +53,8 @@ public class MainRef {
     }
 
     public static void main(String[] args) throws IOException{
-	    String[] refs = {"capitals-generated.png", "letters-generated.png", "numbers-generated.png"/*, "signs.png"*/};
-        String[] fonts = {"Arial-black", "Verdana", "Courier", "Helvetica", "TrebuchetMS", "Times-Roman", "Tahoma",
-        "Lucida Sans Regular", "Georgia", "ComicSansMS", "Avenir-Black", "Serif"};
-        String path = "ref/";
         String currentPath;
+        List<String> paths = new ArrayList<>();
         int i;
         getFonts();
         for (String font : fonts) {
@@ -60,6 +63,7 @@ public class MainRef {
             i = 0;
             for (String ref : refs) {
                 currentPath = path + font + "/" + ref;
+                paths.add(currentPath + "-ref.txt");
                 System.out.println("Trying to read img " + currentPath);
                 BufferedImage img = ImageHelper.loadImageFromPath(currentPath);
                 short[][] pixels = ImageHelper.convertTo2DAndGrayscaleUsingRGB(img);
@@ -81,10 +85,10 @@ public class MainRef {
                 i++;
             }
         }
+        System.out.println("Merging all ref files into one");
+        FileHelper.mergeFilesToSingleFile(paths, path + "ref-all.db");
         System.out.println("MAIN Over");
     }
-
-
 
     public static char[] matchCharRef(final int i) {
         switch (i) {

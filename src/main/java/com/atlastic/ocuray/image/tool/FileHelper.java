@@ -72,6 +72,8 @@ public class FileHelper {
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         Writer writer = new BufferedWriter(fw);
         StringBuffer sb = new StringBuffer();
+        sb.append("### Filename").append("\n");
+        sb.append("### ").append(path).append("\n");
         double[] cur;
         for (ShapeModel letter : letters) {
             sb.append(letter.getC()).append(" ");
@@ -129,10 +131,36 @@ public class FileHelper {
             files[i++] = new File(path);
         }
         File finalFile = new File(finalPath);
+        // truncate the file
+        try {
+            new FileOutputStream(finalFile, false).close();
+        } catch (IOException e) {
+            System.out.println("Could not truncate the file : "+e.getMessage());
+        }
         try {
             joinFiles(finalFile, files);
         } catch (IOException e) {
             System.out.println("Error while merging ref files : "+e.getMessage());
         }
+    }
+
+    public static void writeCompoundsToFile(final char[][] compounds, final String path) throws IOException {
+        File file = new File(path);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        FileWriter fw = new FileWriter(file.getAbsoluteFile());
+        Writer writer = new BufferedWriter(fw);
+        StringBuffer sb = new StringBuffer();
+        sb.append("### Filename").append("\n");
+        sb.append("### ").append(path).append("\n");
+        for (char[] compound : compounds) {
+            sb.append(compound[0]).append(" ")
+                    .append(compound[1]).append(" ")
+                    .append(compound[2]).append(" ")
+                    .append(compound[3]).append("\n");
+        }
+        writer.write(sb.toString());
+        writer.close();
     }
 }

@@ -273,7 +273,7 @@ public class ShapeSemantics {
         List<Line> lines = regroupShapesByLine(shapes);
         System.out.println("Got "+lines.size()+" line(s)");
         // try to match compounds for each line
-        /*System.out.println("Trying to find any compound");
+        System.out.println("Trying to find any compound");
         List<List<DbRef>> compounds = groupCompounds(getRefCompounds(ShapeComparator.dbReferences));
         System.out.println("Got "+compounds.size()+" compounds from the ref file");
         for (Line line : lines) {
@@ -285,7 +285,7 @@ public class ShapeSemantics {
             Collections.sort(line.getLetters());
             System.out.println("\nShapes after sorting");
             line.getLetters().forEach(t -> System.out.print(t.getC() + "__"));
-        }*/
+        }
         // and then regroup the letters for each line
         System.out.println("\nTrying to regroup letters");
         regroupAllLetters(lines);

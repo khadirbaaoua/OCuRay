@@ -23,12 +23,49 @@ public class MainRef {
     static char[] lettersref = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', '.', 'i', '.', 'j', 'k', 'l', 'm', 'n', 'o'
             , 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
     static char[] numbers = {'1', '2', '3', '4', '5', '6', '7', '8' , '9', '0'};
-    static char[] symbols = {'('};
-    static char[] symbolsref;
-    static String[] refs = {"capitals-generated.png", "letters-generated.png", "numbers-generated.png"/*, "signs.png"*/};
+    static char[] symbols = {'(', ')', '[', ']', ',', '.', '/', '°', '#', '@', '\'', '§', '-', '_', '*', '^', '$'
+            , '€', '£', '`', '´', '+', '<', '>', '|'};
+    static char[][] compounds = {
+            {'%', '°', '1', '3'},
+            {'%', '/', '2', '3'},
+            {'%', '°', '3', '3'},
+            {'=', '-', '1', '2'},
+            {'=', '-', '2', '2'},
+            {';', '.', '1', '2'},
+            {';', ',', '2', '2'},
+            {':', '.', '1', '2'},
+            {':', '.', '2', '2'},
+            {'"', '\'', '1', '2'},
+            {'"', '\'', '2', '2'},
+            {'!', '.', '1', '2'},
+            {'!', '|', '2', '2'},
+            {'à', 'a', '1', '2'},
+            {'à', '`', '2', '2'},
+            {'â', 'a', '1', '2'},
+            {'â', '^', '2', '2'},
+            {'é', 'e', '1', '2'},
+            {'é', '´', '2', '2'},
+            {'è', 'e', '1', '2'},
+            {'è', '`', '2', '2'},
+            {'ê', 'e', '1', '2'},
+            {'ê', '^', '2', '2'},
+            {'ï', 'i', '1', '3'},
+            {'ï', '.', '2', '3'},
+            {'ï', '.', '3', '3'},
+            {'î', 'i', '1', '2'},
+            {'î', '^', '2', '2'},
+            {'ô', 'o', '1', '2'},
+            {'ô', '^', '2', '2'},
+            {'ü', 'u', '1', '3'},
+            {'ü', '.', '2', '3'},
+            {'ü', '.', '3', '3'}
+    };
+    static String[] refs = {"capitals-generated.png", "letters-generated.png", "numbers-generated.png",
+            "symbols-generated.png"/*, "compounds.png"*/};
     static String[] fonts = {"Arial-black", "Verdana", "Courier", "Helvetica", "TrebuchetMS", "Times-Roman", "Tahoma",
             "Lucida Sans Regular", "Georgia", "ComicSansMS", "Avenir-Black", "Serif"};
     static String path = "ref/";
+    static String compoundsPath = path + "compounds-ref.txt";
 
 
     public static void createDirectory(final String path, final String font) {
@@ -42,22 +79,29 @@ public class MainRef {
         ImageHelper.createImageWithText(capitals, path + "capitals-generated.png", font);
         ImageHelper.createImageWithText(letters, path + "letters-generated.png", font);
         ImageHelper.createImageWithText(numbers, path + "numbers-generated.png", font);
+        ImageHelper.createImageWithText(symbols, path + "symbols-generated.png", font);
     }
 
-    public static void getFonts() {
+    public static List<String> getFonts() {
         GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
         Font[] fonts = e.getAllFonts(); // Get the fonts
+        List<String> res = new ArrayList<>();
+        int i = 0;
         for (Font f : fonts) {
-            System.out.println(f.getFontName());
+            res.add(f.getFontName());
         }
+        return res;
     }
 
     public static void main(String[] args) throws IOException{
         String currentPath;
         List<String> paths = new ArrayList<>();
         int i;
-        getFonts();
+        List<String> fontsSystem = getFonts();
         for (String font : fonts) {
+            if (!fontsSystem.contains(font)) {
+                System.out.println("Skipping font[" + font + "] as it is not available in this system");
+            }
             createDirectory(path, font);
             generateImageLetters(path + font + "/", font);
             i = 0;
@@ -85,9 +129,16 @@ public class MainRef {
                 i++;
             }
         }
+        System.out.println("Special case: compounds, writing file = "+compoundsPath);
+        generateCompoundFile(compoundsPath);
+        paths.add(compoundsPath);
         System.out.println("Merging all ref files into one");
         FileHelper.mergeFilesToSingleFile(paths, path + "ref-all.db");
         System.out.println("MAIN Over");
+    }
+
+    public static void generateCompoundFile(final String path) throws IOException {
+        FileHelper.writeCompoundsToFile(compounds, path);
     }
 
     public static char[] matchCharRef(final int i) {
@@ -99,7 +150,7 @@ public class MainRef {
             case 2:
                 return numbers;
             case 3:
-                return symbolsref;
+                return symbols;
         }
         return null;
     }

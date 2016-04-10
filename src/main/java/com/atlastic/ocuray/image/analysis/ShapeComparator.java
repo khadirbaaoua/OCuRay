@@ -76,20 +76,20 @@ public class ShapeComparator {
         if (dbReferences == null || dbReferences.size() <= 0) {
             throw new RuntimeException("Ref db is not initialized, size="+dbReferences.size());
         }
-        System.out.println("Sides size");
+        /*System.out.println("Sides size");
         for (ShapeVector v : v1) {
             System.out.print(" "+v.getSize());
         }
-        System.out.println();
+        System.out.println();*/
         for (DbRef dbRef : dbReferences) {
             if (dbRef.isMultipartRef()) {
                 continue;
             }
             // if shape's number or sides don't match, skip
-            /*if (!matchSides(v1, dbRef.getSides())) {
+            if (!matchSides(v1, dbRef.getSides())) {
                 System.out.println("Skipping c["+dbRef.getC()+"], sides are different");
                 continue;
-            }*/
+            }
             System.out.println("Comparing to ref ["+dbRef.getC()+"]");
             tmp = getSimilarityBetweenSides(v1, dbRef.getSides(), ratio, dbRef.getRatio());
             tmp2 = distanceRatioSize(ratio, dbRef.getRatio(), relativeSize, dbRef.getRelativeSize());

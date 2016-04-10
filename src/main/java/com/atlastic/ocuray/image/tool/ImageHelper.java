@@ -123,11 +123,11 @@ public class ImageHelper {
 
     public static void createImageWithText(final char[] chars, final String path, final String font)
             throws IOException {
-        BufferedImage res = new BufferedImage(50, chars.length * 100, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage res = new BufferedImage(100, chars.length * 100, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = res.createGraphics();
         g.drawImage(res, 0, 0, Color.WHITE, null);
         g.setColor(Color.BLACK);
-        g.setFont(new Font(font, Font.PLAIN, 18));
+        g.setFont(new Font(font, Font.PLAIN, 72));
 
         for (int i = 0; i < chars.length; i++) {
             g.drawString(String.valueOf(chars[i]), 10, i * 100 + 100);

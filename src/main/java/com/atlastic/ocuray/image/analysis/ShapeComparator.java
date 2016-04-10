@@ -81,31 +81,33 @@ public class ShapeComparator {
             System.out.print(" "+v.getSize());
         }
         System.out.println();*/
+        int lineMatched = -1;
         for (DbRef dbRef : dbReferences) {
             if (dbRef.isMultipartRef()) {
                 continue;
             }
             // if shape's number or sides don't match, skip
             if (!matchSides(v1, dbRef.getSides())) {
-                System.out.println("Skipping c["+dbRef.getC()+"], sides are different");
+                //System.out.println("Skipping c["+dbRef.getC()+"], sides are different");
                 continue;
             }
-            System.out.println("Comparing to ref ["+dbRef.getC()+"]");
+            //System.out.println("Comparing to ref ["+dbRef.getC()+"]");
             tmp = getSimilarityBetweenSides(v1, dbRef.getSides(), ratio, dbRef.getRatio());
             tmp2 = distanceRatioSize(ratio, dbRef.getRatio(), relativeSize, dbRef.getRelativeSize());
             // weight euclidian distance with ration difference
-            tmp +=  (Math.abs(dbRef.getRelativeSize() - relativeSize));
+            tmp += (Math.abs(dbRef.getRelativeSize() - relativeSize));
             // and ratio
             //tmp /= 1 - (Math.abs(dbRef.getRatio() - ratio));
 
-            System.out.println("Result for ref ["+dbRef.getC()+","+relativeSize+ "," + ratio + "] = "+tmp+" // "+tmp2);
+            //System.out.println("Result for ref ["+dbRef.getC()+","+relativeSize+ "," + ratio + "] = "+tmp+" // "+tmp2);
             if (res == -1 || tmp < res) {
                 //System.out.println("Setting nearest match to "+dbRef.getC());
                 res = tmp;
                 c = dbRef.getC();
+                lineMatched = dbRef.getLineNumber();
             }
         }
-        System.out.println("==============");
+        System.out.println("Line matched : "+lineMatched);
         return c;
     }
 
@@ -125,6 +127,7 @@ public class ShapeComparator {
         System.out.println("Trying  to load db at "+path);
         File dbFile = new File(path);
         System.out.println("Full path of file : "+ dbFile.getAbsolutePath());
+        int i = -1;
         if (dbFile.exists()) {
             List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(path));
             double ratio, relativeSize;
@@ -132,6 +135,7 @@ public class ShapeComparator {
             ShapeVector[] curRef;
             for (String line : lines) {
                 // ignore comments
+                i++;
                 if (line.startsWith("###")) {
                     continue;
                 }
@@ -142,7 +146,7 @@ public class ShapeComparator {
                     DbRef ref = getDbRefFromChar(c);
                     if (ref != null) {
                         dbReferences.add(new DbRef(lineData[0].charAt(0), ref, Integer.parseInt(lineData[2]),
-                                Integer.parseInt(lineData[3])));
+                                Integer.parseInt(lineData[3]), i));
                     } else {
                         throw new IOException("Missing ref in reference file or order is wrong ?");
                     }
@@ -154,7 +158,7 @@ public class ShapeComparator {
                     curRef[3] = new ShapeVector(lineData[4]);
                     ratio = Double.parseDouble(lineData[5]);
                     relativeSize = Double.parseDouble(lineData[6]);
-                    dbReferences.add(new DbRef(c, ratio, relativeSize, curRef));
+                    dbReferences.add(new DbRef(c, ratio, relativeSize, curRef, i));
                 }
             }
         } else {

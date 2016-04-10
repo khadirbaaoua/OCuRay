@@ -13,19 +13,23 @@ public class DbRef {
     private DbRef ref = null;
     private int counter;
     private int total;
+    private int lineNumber;
 
-    public DbRef(final char c, final double ratio, final double relativeSize, final ShapeVector[] sides) {
+    public DbRef(final char c, final double ratio, final double relativeSize, final ShapeVector[] sides,
+                 final int lineNumber) {
         this.c = c;
         this.ratio = ratio;
         this.sides = sides;
         this.relativeSize = relativeSize;
+        this.lineNumber = lineNumber;
     }
 
-    public DbRef(char c, DbRef ref, final int counter, final int total) {
+    public DbRef(char c, DbRef ref, final int counter, final int total, final int lineNumber) {
         this.c = c;
         this.ref = ref;
         this.counter = counter;
         this.total = total;
+        this.lineNumber = lineNumber;
     }
 
     public char getC() {
@@ -70,5 +74,13 @@ public class DbRef {
 
     public double getRelativeSize() {
         return relativeSize;
+    }
+
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber = lineNumber;
     }
 }

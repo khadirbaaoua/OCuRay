@@ -24,6 +24,7 @@ public class ShapeModel implements Comparable<ShapeModel> {
     private char c;
     ShapeSide[] sideInformation;
     ShapeVector[] vectors;
+    private double occupation;
     private boolean isHollow = false;
 
     public ShapeModel() {
@@ -173,5 +174,13 @@ public class ShapeModel implements Comparable<ShapeModel> {
         } else {
             return 0;
         }
+    }
+
+    public double getOccupation() {
+        return occupation;
+    }
+
+    public void setOccupation(double occupation) {
+        this.occupation = occupation;
     }
 }

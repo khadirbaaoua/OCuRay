@@ -94,7 +94,7 @@ public class ShapeAnalysis {
         shapeModel.setSideInformation(res);
     }
 
-    // square surface of shape
+    // various stats for the shape
     public static void computeSizeOfShape(List<Point> shape, ShapeModel shapeModel) {
         if (shape.size() <= 0) {
             return;
@@ -120,6 +120,7 @@ public class ShapeAnalysis {
         Point center = new Point();
         center.setLocation((maxx - ((maxx - minx) / 2.0)), (maxy - ((maxy - miny) / 2.0)));
         shapeModel.setCenter(center);
+        shapeModel.setOccupation(shape.size() / ((maxy - miny) * (maxx - minx)));
     }
 
     // binarize the shape, extract outline, vectorize and match character

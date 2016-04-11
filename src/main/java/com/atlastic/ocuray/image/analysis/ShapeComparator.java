@@ -1,16 +1,13 @@
 package com.atlastic.ocuray.image.analysis;
 
 import com.atlastic.ocuray.Constants;
-import com.oracle.tools.packager.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by khadirbaaoua on 17/03/2016.
@@ -34,25 +31,27 @@ public class ShapeComparator {
         return Math.sqrt(res);
     }
 
-    // euclidian distances between two shapes
-    public static double getSimilarityBetweenSides(final ShapeVector[] v1, final ShapeVector[] v2,
-                                                   final double ratioV1, final double ratioV2) {
+    // euclidian distances between a shape and a ref
+    public static double getSimilarityBetweenSides(final ShapeModel v1, final DbRef v2) {
         double res = 0.0;
         double tmp;
-        for (int i = 0; i < 4; i++) {
-            tmp = computeEuclidianDistance(v1[i], v2[i]);
+        // compare sides vectors
+        for (int i = 0; i < 5; i++) {
+            tmp = computeEuclidianDistance(v1.getVectors()[i], v2.getSides()[i]);
             //System.out.println("Similarity between sides ["+i+"] : ["+tmp+"]");
             res += tmp;
         }
-        // added fifth coordinate to vector (ratio)
-        //System.out.println("Ratio shape [" + ratioV1 + "], ratio ref ["+ratioV2+"]");
-        //res += Math.sqrt(Math.pow(ratioV1 - ratioV2, 2));
-        return res / 4;
+        // compute another vector distance (relative size, ratio and occupation)
+        tmp = Math.pow(v1.getRatio() - v2.getRatio(), 2);
+        tmp += Math.pow(v1.getRelativeSize() - v2.getRelativeSize(), 2);
+        tmp += Math.pow(v1.getOccupation() - v2.getOccupation(), 2);
+        tmp = Math.sqrt(tmp);
+        return (res / 5.0) + tmp;
     }
 
     // double matching : size and negativity
     public static boolean matchSides(final ShapeVector[] v, final ShapeVector[] ref) {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 5; i++) {
             if (v[i].getSize() != ref[i].getSize()
                     || !ShapeMaths.matchDoublesSigns(v[i].getAll(), ref[i].getAll())) {
                 return false;
@@ -61,21 +60,14 @@ public class ShapeComparator {
         return true;
     }
 
-    public static double distanceRatioSize(final double ratio1, final double ratio2, final double size1,
-                                            final double size2) {
-        double res = -1.0;
-        res += Math.pow(ratio1 -ratio2, 2);
-        res += Math.pow(size1 -size2, 2);
-        return res / 2.0;
-    }
-
-    public static char compareShapeWithDb(final ShapeVector[] v1, final double relativeSize, final double ratio) {
+    public static char compareShapeWithDb(final ShapeModel v1) {
         double res = -1.0;
         char c = '∏';
         double tmp, tmp2;
         if (dbReferences == null || dbReferences.size() <= 0) {
             throw new RuntimeException("Ref db is not initialized, size="+dbReferences.size());
         }
+        System.out.println("Relative size of shape : "+v1.getRelativeSize());
         /*System.out.println("Sides size");
         for (ShapeVector v : v1) {
             System.out.print(" "+v.getSize());
@@ -87,18 +79,13 @@ public class ShapeComparator {
                 continue;
             }
             // if shape's number or sides don't match, skip
-            if (!matchSides(v1, dbRef.getSides())) {
+            /*if (!matchSides(v1.getVectors(), dbRef.getSides())) {
                 //System.out.println("Skipping c["+dbRef.getC()+"], sides are different");
                 continue;
-            }
+            }*/
             //System.out.println("Comparing to ref ["+dbRef.getC()+"]");
-            tmp = getSimilarityBetweenSides(v1, dbRef.getSides(), ratio, dbRef.getRatio());
-            tmp2 = distanceRatioSize(ratio, dbRef.getRatio(), relativeSize, dbRef.getRelativeSize());
+            tmp = getSimilarityBetweenSides(v1, dbRef);
             // weight euclidian distance with ration difference
-            tmp += (Math.abs(dbRef.getRelativeSize() - relativeSize));
-            // and ratio
-            //tmp /= 1 - (Math.abs(dbRef.getRatio() - ratio));
-
             //System.out.println("Result for ref ["+dbRef.getC()+","+relativeSize+ "," + ratio + "] = "+tmp+" // "+tmp2);
             if (res == -1 || tmp < res) {
                 //System.out.println("Setting nearest match to "+dbRef.getC());
@@ -127,10 +114,10 @@ public class ShapeComparator {
         System.out.println("Trying  to load db at "+path);
         File dbFile = new File(path);
         System.out.println("Full path of file : "+ dbFile.getAbsolutePath());
-        int i = -1;
+        int i = 0;
         if (dbFile.exists()) {
             List<String> lines = Files.readAllLines(FileSystems.getDefault().getPath(path));
-            double ratio, relativeSize;
+            double ratio, relativeSize, occupation;
             char c;
             ShapeVector[] curRef;
             for (String line : lines) {
@@ -146,19 +133,23 @@ public class ShapeComparator {
                     DbRef ref = getDbRefFromChar(c);
                     if (ref != null) {
                         dbReferences.add(new DbRef(lineData[0].charAt(0), ref, Integer.parseInt(lineData[2]),
-                                Integer.parseInt(lineData[3]), i));
+                                Integer.parseInt(lineData[3]), i, -1));
                     } else {
-                        throw new IOException("Missing ref in reference file or order is wrong ?");
+                        throw new IOException("Missing ref in reference file or order is wrong ? "
+                        + "Line number [" + i+"] for compound [" + c + "]");
                     }
-                } else if(lineData.length == 7) {
-                    curRef = new ShapeVector[4];
+                } else if(lineData.length == 10) {
+                    curRef = new ShapeVector[6];
                     curRef[0] = new ShapeVector(lineData[1]);
                     curRef[1] = new ShapeVector(lineData[2]);
                     curRef[2] = new ShapeVector(lineData[3]);
                     curRef[3] = new ShapeVector(lineData[4]);
-                    ratio = Double.parseDouble(lineData[5]);
-                    relativeSize = Double.parseDouble(lineData[6]);
-                    dbReferences.add(new DbRef(c, ratio, relativeSize, curRef, i));
+                    curRef[4] = new ShapeVector(lineData[5]);
+                    curRef[5] = new ShapeVector(lineData[6]);
+                    ratio = Double.parseDouble(lineData[7]);
+                    relativeSize = Double.parseDouble(lineData[8]);
+                    occupation = Double.parseDouble(lineData[9]);
+                    dbReferences.add(new DbRef(c, ratio, relativeSize, curRef, i, occupation));
                 }
             }
         } else {

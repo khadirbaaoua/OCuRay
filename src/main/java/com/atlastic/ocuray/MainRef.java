@@ -19,12 +19,12 @@ public class MainRef {
     static char[] capitals = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R'
     ,'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
     static char[] letters = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r'
-    ,'s', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+    ,'s', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A'};
     static char[] lettersref = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', '.', 'i', '.', 'j', 'k', 'l', 'm', 'n', 'o'
-            , 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
-    static char[] numbers = {'1', '2', '3', '4', '5', '6', '7', '8' , '9', '0'};
+            , 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A'};
+    static char[] numbers = {'1', '2', '3', '4', '5', '6', '7', '8' , '9', '0', 'A'};
     static char[] symbols = {'(', ')', '[', ']', ',', '.', '/', '°', '#', '@', '\'', '§', '-', '_', '*', '^', '$'
-            , '€', '£', '`', '´', '+', '<', '>', '|'};
+            , '€', '£', '`', '´', '+', '<', '>', '|', 'A'};
     static char[][] compounds = {
             {'%', '°', '1', '3'},
             {'%', '/', '2', '3'},
@@ -63,7 +63,7 @@ public class MainRef {
     static String[] refs = {"capitals-generated.png", "letters-generated.png", "numbers-generated.png",
             "symbols-generated.png"/*, "compounds.png"*/};
     static String[] fonts = {"Arial-black", "Verdana", "Courier", "Helvetica", "TrebuchetMS", "Times-Roman", "Tahoma",
-            "Lucida Sans Regular", "Georgia", "ComicSansMS", "Avenir-Black", "Serif"};
+            "Lucida Sans Regular", "Georgia", /*"ComicSansMS",*/ "Avenir-Black", "Serif"};
     static String path = "ref/";
     static String compoundsPath = path + "compounds-ref.txt";
 

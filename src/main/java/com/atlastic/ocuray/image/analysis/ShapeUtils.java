@@ -146,7 +146,7 @@ public class ShapeUtils {
         if (sides == null || sides.length <= 0) {
             return null;
         }
-        ShapeVector[] res = new ShapeVector[4];
+        ShapeVector[] res = new ShapeVector[6];
         int i = 0;
         int j;
         double sideLength = 0;

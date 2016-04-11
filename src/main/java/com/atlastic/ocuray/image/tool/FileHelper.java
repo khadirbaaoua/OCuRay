@@ -88,7 +88,8 @@ public class FileHelper {
                 }
                 sb.append(" ");
             }
-            sb.append(letter.getRatio()).append(" ").append(letter.getRelativeSize()).append("\n");
+            sb.append(letter.getRatio()).append(" ").append(letter.getRelativeSize())
+                    .append(" ").append(letter.getOccupation()).append("\n");
         }
         writer.write(sb.toString());
         writer.close();

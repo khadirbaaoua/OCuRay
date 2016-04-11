@@ -62,35 +62,48 @@ public class ShapeAnalysis {
 
     public static void getSideInformation(List<Point> shape, ShapeModel shapeModel) {
         // for each side,
-        ShapeSide[] res = new ShapeSide[4];
+        ShapeSide[] res = new ShapeSide[6];
         res[0] = new ShapeSide();
         res[1] = new ShapeSide();
         res[2] = new ShapeSide();
         res[3] = new ShapeSide();
-        List<ShapeSideElement>[] sides = new List[4];
+        res[4] = new ShapeSide();
+        res[5] = new ShapeSide();
+        List<ShapeSideElement>[] sides = new List[6];
         Point curPointMin = new Point();
         Point curPointMax = new Point();
+        Point curPointMoy = new Point();
         int curFillMin = -1;
         int curFillMax = -1;
+        int curFillMoy = -1;
         // Up : index 0, x = min
+        // from left to right
         for (int i = shapeModel.getMiny(); i <= shapeModel.getMaxy(); i++) {
             curPointMin.move(shapeModel.getMinx(), i);
             curPointMax.move(shapeModel.getMaxx(), i);
+            curPointMoy.move(shapeModel.getMinx() + shapeModel.getHeight() / 2, i);
             curFillMin = addPointToSegment(0, shape, curPointMin, sides, curFillMin, res[0]);
             curFillMax = addPointToSegment(2, shape, curPointMax, sides, curFillMax, res[2]);
+            curFillMoy = addPointToSegment(4, shape, curPointMoy, sides, curFillMoy, res[4]);
         }
         curFillMin = -1;
         curFillMax = -1;
+        curFillMoy = -1;
+        // from up to down
         for (int i = shapeModel.getMinx(); i <= shapeModel.getMaxx(); i++) {
             curPointMin.move(i, shapeModel.getMiny());
             curPointMax.move(i, shapeModel.getMaxy());
+            curPointMoy.move(i, shapeModel.getMiny() + shapeModel.getHeight() / 2);
             curFillMin = addPointToSegment(3, shape, curPointMin, sides, curFillMin, res[3]);
             curFillMax = addPointToSegment(1, shape, curPointMax, sides, curFillMax, res[1]);
+            curFillMoy = addPointToSegment(5, shape, curPointMoy, sides, curFillMoy, res[5]);
         }
         res[0].setSideElts(sides[0]);
         res[1].setSideElts(sides[1]);
         res[2].setSideElts(sides[2]);
         res[3].setSideElts(sides[3]);
+        res[4].setSideElts(sides[4]);
+        res[5].setSideElts(sides[5]);
         shapeModel.setSideInformation(res);
     }
 
@@ -120,7 +133,8 @@ public class ShapeAnalysis {
         Point center = new Point();
         center.setLocation((maxx - ((maxx - minx) / 2.0)), (maxy - ((maxy - miny) / 2.0)));
         shapeModel.setCenter(center);
-        shapeModel.setOccupation(shape.size() / ((maxy - miny) * (maxx - minx)));
+        System.out.println("Nb pixels ["+shape.size()+"] VS max/min X Y [(" +minx+","+maxx+") ("+maxy+","+miny + ")]");
+        shapeModel.setOccupation(shape.size() / ((double) ((maxy - miny) * (maxx - minx))));
     }
 
     // binarize the shape, extract outline, vectorize and match character
@@ -157,7 +171,7 @@ public class ShapeAnalysis {
             // compare the vectors to ref db and extract matching character
             //System.out.println("Shape ratio,size = "+shape.getRatio()+ "," + shape.getRelativeSize());
             if (ShapeComparator.dbReferences != null && ShapeComparator.dbReferences.size() > 0) {
-                c = ShapeComparator.compareShapeWithDb(shape.getVectors(), shape.getRelativeSize(), shape.getRatio());
+                c = ShapeComparator.compareShapeWithDb(shape);
                 System.out.println("Got the character " + c);
                 // and set it to the binarized shape
                 shape.setC(c);

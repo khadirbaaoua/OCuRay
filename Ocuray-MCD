@@ -1,0 +1,92 @@
+
+client {
+	_id
+	firstname
+	lastname
+	company
+	email
+	mobile
+	phone
+	siren
+	password
+}
+
+payment {
+	_id
+	clientId
+	externalPaymentId
+	// and info related to external payment
+}
+
+subscription {
+	_id
+	subscriptionTypeId
+	clientId
+	startDate
+	endDate
+	paymentId?
+}
+
+invoice {
+	_id
+	clientId
+	amount
+	subscriptions [subscriptionId]
+	options [optionId]
+}
+
+option {
+	_id
+	clientId
+	subscriptionId
+}
+
+optionType {
+	_id
+	name
+	type
+	usage
+}
+
+subscriptionType {
+	_id
+	type
+	price
+	duration
+}
+
+user {
+	_id
+	clientId
+	firstname
+	lastname
+	email
+	password
+	currentUsage
+	capacityUsage
+}
+
+ticket {
+	_id
+	userId
+	category
+	tva {
+		breakdown [amount, percent]
+		total
+	}
+	ttc {
+		breakdown [amount, percent]
+		total
+	}
+	date
+	establishment
+	address
+	phone
+	tvaNumber
+}
+
+revoked_token {
+	token
+	date_added
+}
+
